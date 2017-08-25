@@ -37,13 +37,7 @@
     <ClInclude Include="board-generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tile-sprites.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game-state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enums.h">

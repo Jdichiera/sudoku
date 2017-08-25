@@ -586,53 +586,6 @@ bool Tile::MouseOver() {
 
 	return mouseOver;
 }
-void Tile::HandleEvent(SDL_Event* event) {
-	if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		//bool inside = MouseOver();
-		bool inside = true;
-		int x;
-		int y;
-		SDL_GetMouseState(&x, &y);
-		if (x < position.x) {
-			inside = false;
-		}
-		else if (x > position.x + TILE_WIDTH) {
-			inside = false;
-		}
-		else if (y < position.y) {
-			inside = false;
-		}
-		else if (y > position.y + TILE_HEIGHT) {
-			inside = false;
-		}
-
-		if (!inside) {
-			currentSprite = TILE_BLANK;
-		}
-		else {
-			switch (event->type) {
-			case SDL_MOUSEMOTION:
-				//currentSprite = TILE_1;
-				//tempTile.SetPosition(event->motion.x, event->motion.y);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				//currentSprite = TILE_2;
-				//while (SDL_MOUSEBUTTONDOWN) {
-				//std::cout << "\n" << x << " : " << y;
-				//tempTile.SetPosition(x, y);
-				//tempTile.SetSprite(this->currentSprite);
-				//}
-				break;
-			case SDL_MOUSEBUTTONUP:
-				//currentSprite = TILE_3;
-				//std::cout << this->currentSprite;
-				//tempTile.SetSprite(this->currentSprite);
-				//tempTile.value = this->value;
-				break;
-			}
-		}
-	}
-}
 
 Texture::Texture() {
 	texture = NULL;
