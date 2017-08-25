@@ -148,6 +148,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board-generator.h" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="enums.h" />
+    <ClInclude Include="game-state.h" />
+    <ClInclude Include="tile-sprites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

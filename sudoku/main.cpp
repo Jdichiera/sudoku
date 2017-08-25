@@ -3,40 +3,11 @@
 #include <SDL_image.h>
 #include <iostream>
 #include "board-generator.h"
+#include "enums.h"
+#include "constants.h"
 #include <chrono>
 #include <thread>
 
-enum State {
-	STATE_NULL,
-	STATE_TITLE,
-	STATE_GAME,
-	STATE_WIN,
-	STATE_EXIT
-};
-
-enum TileSprite {
-	TILE_BLANK = 0,
-	TILE_1 = 1,
-	TILE_2 = 2,
-	TILE_3 = 3,
-	TILE_4 = 4,
-	TILE_5 = 5,
-	TILE_6 = 6,
-	TILE_7 = 7,
-	TILE_8 = 8,
-	TILE_9 = 9,
-	TILE_SPRITE_TOTAL = 10
-};
-
-const int SWIDTH = 800;
-const int SHEIGHT = 1000;
-const int TILE_WIDTH = 64;
-const int TILE_HEIGHT = 64;
-const int TILE_COUNT = 10;
-const int ROW_COUNT = 9;
-const int COL_COUNT = 9;
-const int PADDING_X = 20;
-const int PADDING_Y = 20;
 
 //===--- Class & Function Def ---===
 class GameState {
