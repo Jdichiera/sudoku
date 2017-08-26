@@ -325,20 +325,28 @@ void GameScreen::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
 	// Draw main Sudoku box outline
-	SDL_Rect topBorder{ 4, 13, 631, 4 };
-	SDL_Rect bottomBorder{ 5, 617, 631, 4 };
-	SDL_Rect leftBorder{ 13, 4, 4, 625 };
-	SDL_Rect righBorder{ 616, 4, 4, 625 };
+	// gameBoard[i][j].SetPosition((TILE_WIDTH * j) + PADDING_X, (TILE_HEIGHT * i) + PADDING_Y);
+	int firstTileX = gameBoard[0][0].GetX();
+	int firstTileY = gameBoard[0][0].GetY();
+	int lastTileX = gameBoard[8][8].GetX();
+	int lastTileY = gameBoard[8][8].GetY();
+
+	SDL_Rect topBorder{ firstTileX - 16, firstTileY - 7, BORDER_HEIGHT, BORDER_WIDTH }; // x = 4, y = 13, lenght = 631, width = 4
+	SDL_Rect bottomBorder{ firstTileX - 16, lastTileY + TILE_HEIGHT, BORDER_HEIGHT, BORDER_WIDTH }; // 5, 617
+	SDL_Rect leftBorder{ firstTileY - 7, firstTileY - 16, BORDER_WIDTH, BORDER_HEIGHT };
+	SDL_Rect righBorder{ lastTileX + TILE_HEIGHT, firstTileY - 16, BORDER_WIDTH, BORDER_HEIGHT };
+
 	SDL_RenderFillRect(renderer, &topBorder);
 	SDL_RenderFillRect(renderer, &bottomBorder);
 	SDL_RenderFillRect(renderer, &leftBorder);
 	SDL_RenderFillRect(renderer, &righBorder);
+	//std::cout << firstTileX << " : " << firstTileY;
 
 	//// Block outlines
-	SDL_Rect blockLeft{ 215, 20, 4, 595 };
-	SDL_Rect blockRight{ 417, 20, 4, 595 };
-	SDL_Rect blockTop{ 20, 215, 595, 4 };
-	SDL_Rect blockBottom{ 20, 417, 595, 4 };
+	SDL_Rect blockLeft{ 3 + PADDING_X + (TILE_HEIGHT * 3) , PADDING_Y, BORDER_WIDTH, INNER_BORDER_HEIGHT };
+	SDL_Rect blockRight{ 13 + (6 * TILE_HEIGHT) + PADDING_X, PADDING_Y, BORDER_WIDTH, INNER_BORDER_HEIGHT };
+	SDL_Rect blockTop{ PADDING_X, 3 + PADDING_X + (TILE_HEIGHT * 3), INNER_BORDER_HEIGHT, BORDER_WIDTH };
+	SDL_Rect blockBottom{ PADDING_X, 13 + (6 * TILE_HEIGHT) + PADDING_X, INNER_BORDER_HEIGHT, BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &blockLeft);
 	SDL_RenderFillRect(renderer, &blockRight);
 	SDL_RenderFillRect(renderer, &blockTop);
@@ -346,10 +354,10 @@ void GameScreen::Render() {
 
 	// Draw borders around tiles
 	// Left top horizontal & vertical
-	SDL_Rect leftTopTopH{ 29, 83,  172, 2 };
-	SDL_Rect leftTopBotH{ 29, 147, 172, 2 };
-	SDL_Rect leftTopTopV{ 83, 29,  2, 172 };
-	SDL_Rect leftTopBotV{ 147, 29, 2, 172 };
+	SDL_Rect leftTopTopH{ PADDING_X + 9, (PADDING_Y - 1) + TILE_HEIGHT,  TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftTopBotH{ PADDING_X + 9, (PADDING_Y - 1) + (TILE_HEIGHT * 2), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftTopTopV{ (PADDING_Y - 1) + TILE_HEIGHT, PADDING_X + 9,  TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect leftTopBotV{ (PADDING_Y - 1) + (TILE_HEIGHT * 2), PADDING_X + 9, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 
 	SDL_RenderFillRect(renderer, &leftTopTopH);
 	SDL_RenderFillRect(renderer, &leftTopBotH);
@@ -357,10 +365,10 @@ void GameScreen::Render() {
 	SDL_RenderFillRect(renderer, &leftTopBotV);
 
 	// Left middle horizontal & vertical
-	SDL_Rect leftMidTopH{ 29, 285,  172, 2 };
-	SDL_Rect leftMidBotH{ 29, 349, 172, 2 };
-	SDL_Rect leftMidTopV{ 83, 231,  2, 172 };
-	SDL_Rect leftMidBotV{ 147, 231, 2, 172 };
+	SDL_Rect leftMidTopH{ PADDING_X + 9, (PADDING_Y - 1) + (TILE_HEIGHT * 4) + 10,  TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftMidBotH{ PADDING_X + 9, (PADDING_Y - 1) + (TILE_HEIGHT * 5) + 10, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftMidTopV{ (PADDING_X - 1) + TILE_HEIGHT, (PADDING_Y - 1) + (TILE_HEIGHT * 3) + 19,  TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect leftMidBotV{ (PADDING_X - 1) + (TILE_HEIGHT * 2),  (PADDING_Y - 1) + (TILE_HEIGHT * 3) + 19, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 
 	SDL_RenderFillRect(renderer, &leftMidTopH);
 	SDL_RenderFillRect(renderer, &leftMidBotH);
@@ -368,10 +376,10 @@ void GameScreen::Render() {
 	SDL_RenderFillRect(renderer, &leftMidBotV);
 
 	// Left bottom horizontal & vertical
-	SDL_Rect leftBotTopH{ 29, 487,  172, 2 };
-	SDL_Rect leftBotBotH{ 29, 551, 172, 2 };
-	SDL_Rect leftBotTopV{ 83, 433,  2, 172 };
-	SDL_Rect leftBotBotV{ 147, 433, 2, 172 };
+	SDL_Rect leftBotTopH{ PADDING_X + 9, (PADDING_Y - 1) + (TILE_HEIGHT * 7) + 20,  TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftBotBotH{ PADDING_X + 9, (PADDING_Y - 1) + (TILE_HEIGHT * 8) + 20, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect leftBotTopV{ (PADDING_X - 1) + TILE_HEIGHT, (PADDING_Y - 1) + (TILE_HEIGHT * 6) + 29,  TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect leftBotBotV{ (PADDING_X - 1) + (TILE_HEIGHT * 2), (PADDING_Y - 1) + (TILE_HEIGHT * 6) + 29, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 
 	SDL_RenderFillRect(renderer, &leftBotTopH);
 	SDL_RenderFillRect(renderer, &leftBotBotH);
@@ -380,10 +388,10 @@ void GameScreen::Render() {
 
 
 	// Middle top
-	SDL_Rect midTopTopH{ 231, 83,  172, 2 };
-	SDL_Rect midTopBotH{ 231, 147, 172, 2 };
-	SDL_Rect midTopLeftV{ 285, 29,  2, 172 };
-	SDL_Rect midTopRightV{ 349, 29, 2, 172 };
+	SDL_Rect midTopTopH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, (PADDING_Y - 1) + TILE_HEIGHT,  TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midTopBotH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, (PADDING_Y - 1) + (TILE_HEIGHT * 2), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midTopLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 4), PADDING_Y + 9,  TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect midTopRightV{ PADDING_X + 9 + (TILE_HEIGHT * 5), PADDING_Y + 9, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 
 	SDL_RenderFillRect(renderer, &midTopTopH);
 	SDL_RenderFillRect(renderer, &midTopBotH);
@@ -391,50 +399,50 @@ void GameScreen::Render() {
 	SDL_RenderFillRect(renderer, &midTopRightV);
 
 	// Middle middle
-	SDL_Rect midMidTopH{ 231, 285, 172, 2 };
-	SDL_Rect midMidBotH{ 231, 349, 172, 2 };
-	SDL_Rect midMidLeftV{ 285, 231, 2, 172 };
-	SDL_Rect midMidRightV{ 349, 231, 2, 172 };
+	SDL_Rect midMidTopH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, PADDING_Y + 9 + (TILE_HEIGHT * 4), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midMidBotH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, PADDING_Y + 9 + (TILE_HEIGHT * 5), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midMidLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 4), PADDING_Y + 9 + (TILE_HEIGHT * 3) + 11, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect midMidRightV{ PADDING_X + 9 + (TILE_HEIGHT * 5), PADDING_Y + 9 + (TILE_HEIGHT * 3) + 11, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &midMidTopH);
 	SDL_RenderFillRect(renderer, &midMidBotH);
 	SDL_RenderFillRect(renderer, &midMidLeftV);
 	SDL_RenderFillRect(renderer, &midMidRightV);
 
 	//// Middle bottom
-	SDL_Rect midBotTopH{ 231, 487, 172, 2 };
-	SDL_Rect midBotBotH{ 231, 551, 172, 2 };
-	SDL_Rect midBotLeftV{ 285, 433, 2, 172 };
-	SDL_Rect midBotRightV{ 349, 433, 2, 172 };
+	SDL_Rect midBotTopH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, PADDING_Y + 9 + (TILE_HEIGHT * 7) + 10, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midBotBotH{ PADDING_X + 9 + (TILE_HEIGHT * 3) + 11, PADDING_Y + 9 + (TILE_HEIGHT * 8) + 10, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect midBotLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 4), PADDING_Y + 9 + (TILE_HEIGHT * 6) + 20, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect midBotRightV{ PADDING_X + 9 + (TILE_HEIGHT * 5), PADDING_Y + 9 + (TILE_HEIGHT * 6) + 20, TILE_BORDER_HEIGHT,TILE_BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &midBotTopH);
 	SDL_RenderFillRect(renderer, &midBotBotH);
 	SDL_RenderFillRect(renderer, &midBotLeftV);
 	SDL_RenderFillRect(renderer, &midBotRightV);
 
 	// Right top
-	SDL_Rect rightTopTopH{ 433, 83, 172, 2 };
-	SDL_Rect rightTopBotH{ 433, 147, 172, 2 };
-	SDL_Rect rightTopLeftV{ 487, 29, 2, 172 };
-	SDL_Rect rightTopRightV{ 551, 29, 2, 172 };
+	SDL_Rect rightTopTopH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, (PADDING_Y - 1) + TILE_HEIGHT, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightTopBotH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, (PADDING_Y - 1) + (TILE_HEIGHT * 2), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightTopLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 7) + 10, PADDING_Y + 9, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect rightTopRightV{ PADDING_X + 9 + (TILE_HEIGHT * 8) + 10, PADDING_Y + 9, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &rightTopTopH);
 	SDL_RenderFillRect(renderer, &rightTopBotH);
 	SDL_RenderFillRect(renderer, &rightTopLeftV);
 	SDL_RenderFillRect(renderer, &rightTopRightV);
 
 	// Right middle
-	SDL_Rect rightMidTopH{ 433, 285, 172, 2 };
-	SDL_Rect rightMidBotH{ 433, 349, 172, 2 };
-	SDL_Rect rightMidLeftV{ 487, 231, 2, 172 };
-	SDL_Rect rightMidRightV{ 551, 231, 2, 172 };
+	SDL_Rect rightMidTopH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, PADDING_Y + 9 + (TILE_HEIGHT * 4), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightMidBotH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, PADDING_Y + 9 + (TILE_HEIGHT * 5), TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightMidLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 7) + 10, PADDING_Y + 9 + (TILE_HEIGHT * 3) + 11, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect rightMidRightV{ PADDING_X + 9 + (TILE_HEIGHT * 8) + 10, PADDING_Y + 9 + (TILE_HEIGHT * 3) + 11, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &rightMidTopH);
 	SDL_RenderFillRect(renderer, &rightMidBotH);
 	SDL_RenderFillRect(renderer, &rightMidLeftV);
 	SDL_RenderFillRect(renderer, &rightMidRightV);
 
 	// Right bottom
-	SDL_Rect rightBotTopH{ 433, 487, 172, 2 };
-	SDL_Rect rightBotBotH{ 433, 551, 172, 2 };
-	SDL_Rect rightBotLeftV{ 487, 433, 2, 172 };
-	SDL_Rect rightBotRightV{ 551, 433, 2, 172 };
+	SDL_Rect rightBotTopH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, PADDING_Y + 9 + (TILE_HEIGHT * 7) + 10, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightBotBotH{ PADDING_X + 9 + (TILE_HEIGHT * 6) + 20, PADDING_Y + 9 + (TILE_HEIGHT * 8) + 10, TILE_BORDER_WIDTH, TILE_BORDER_HEIGHT };
+	SDL_Rect rightBotLeftV{ PADDING_X + 9 + (TILE_HEIGHT * 7) + 10, PADDING_Y + 9 + (TILE_HEIGHT * 6) + 20, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
+	SDL_Rect rightBotRightV{ PADDING_X + 9 + (TILE_HEIGHT * 8) + 10, PADDING_Y + 9 + (TILE_HEIGHT * 6) + 20, TILE_BORDER_HEIGHT, TILE_BORDER_WIDTH };
 	SDL_RenderFillRect(renderer, &rightBotTopH);
 	SDL_RenderFillRect(renderer, &rightBotBotH);
 	SDL_RenderFillRect(renderer, &rightBotLeftV);
@@ -719,7 +727,6 @@ bool Init() {
 			}
 		}
 	}
-	//screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE);
 	return success;
 }
 
@@ -798,66 +805,52 @@ void ClearCells(int pattern[][9]) {
 void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
-			//gameBoard[i][j].SetValue(masterGameBoard[i][j]);
-
-
-
-
 
 			switch (masterGameBoard[i][j]) {
 			case 1:
 				gameBoard[i][j].SetSprite(TILE_1);
 				gameBoard[i][j].SetValue(1);
 				gameBoard[i][j].SetWinValue(1);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 2:
 				gameBoard[i][j].SetSprite(TILE_2);
 				gameBoard[i][j].SetValue(2);
 				gameBoard[i][j].SetWinValue(2);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 3:
 				gameBoard[i][j].SetSprite(TILE_3);
 				gameBoard[i][j].SetValue(3);
 				gameBoard[i][j].SetWinValue(3);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 4:
 				gameBoard[i][j].SetSprite(TILE_4);
 				gameBoard[i][j].SetValue(4);
 				gameBoard[i][j].SetWinValue(4);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 5:
 				gameBoard[i][j].SetSprite(TILE_5);
 				gameBoard[i][j].SetValue(5);
 				gameBoard[i][j].SetWinValue(5);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 6:
 				gameBoard[i][j].SetSprite(TILE_6);
 				gameBoard[i][j].SetValue(6);
 				gameBoard[i][j].SetWinValue(6);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 7:
 				gameBoard[i][j].SetSprite(TILE_7);
 				gameBoard[i][j].SetValue(7);
 				gameBoard[i][j].SetWinValue(7);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 8:
 				gameBoard[i][j].SetSprite(TILE_8);
 				gameBoard[i][j].SetValue(8);
 				gameBoard[i][j].SetWinValue(8);
-				//gameBoard[i][j].LockTile();
 				break;
 			case 9:
 				gameBoard[i][j].SetSprite(TILE_9);
 				gameBoard[i][j].SetValue(9);
 				gameBoard[i][j].SetWinValue(9);
-				//gameBoard[i][j].LockTile();
 				break;
 			default:
 				gameBoard[i][j].SetSprite(TILE_BLANK);
@@ -921,9 +914,6 @@ int main(int argc, char* args[]) {
 
 			stateID = STATE_TITLE;
 			currentState = new TitleScreen();
-
-
-
 
 			auto time2 = std::chrono::high_resolution_clock::now();
 			auto runTimeMS = std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count();
