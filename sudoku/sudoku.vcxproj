@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Image Include="assets\all-tiles.png" />
     <Image Include="assets\tiles.png" />
     <Image Include="assets\title.png" />
     <Image Include="assets\win.png" />
