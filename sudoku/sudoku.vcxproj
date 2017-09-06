@@ -70,20 +70,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.5\SDL_Mixer\include;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.5\SDL_Mixer\lib\x64;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.5\SDL_Mixer\include;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.5\SDL_Mixer\lib\x64;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.5\SDL_Mixer\include;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.5\SDL_Mixer\lib\x64;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.5\SDL_Mixer\include;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\include;C:\SDL2-2.0.5\SDL2_image-2.0.1\include;C:\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.5\SDL_Mixer\lib\x64;C:\SDL2-2.0.5\SDL2_ttf-2.0.14\lib\x64;C:\SDL2-2.0.5\SDL2_image-2.0.1\lib\x64;C:\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -103,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -118,7 +118,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -133,12 +133,14 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Image Include="assets\all-tiles.png" />
+    <Image Include="assets\background.png" />
+    <Image Include="assets\background2.png" />
     <Image Include="assets\tiles.png" />
     <Image Include="assets\title.png" />
     <Image Include="assets\win.png" />
@@ -151,6 +153,13 @@
     <ClInclude Include="board-generator.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="enums.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\background-music.wav" />
+    <Media Include="assets\sound-music.mp3" />
+    <Media Include="assets\bgm.wav" />
+    <Media Include="assets\sound-pickup.mp3" />
+    <Media Include="assets\sound-set.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

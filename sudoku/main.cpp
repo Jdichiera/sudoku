@@ -1,6 +1,7 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <iostream>
 #include "board-generator.h"
 #include "enums.h"
@@ -16,20 +17,6 @@ public:
 	virtual void Logic() = 0;
 	virtual void Render() = 0;
 	virtual ~GameState() {};
-};
-
-class WinScreen : public GameState {
-private:
-	SDL_Surface *winImage;
-	SDL_Texture *winTexture;
-	// If I have text
-	SDL_Surface *message;
-public:
-	WinScreen();
-	~WinScreen();
-	void HandleEvents();
-	void Logic();
-	void Render();
 };
 
 class TitleScreen : public GameState {
@@ -48,8 +35,26 @@ public:
 	void Render();
 };
 
+
+class WinScreen : public GameState {
+private:
+	SDL_Surface *winImage;
+	SDL_Texture *winTexture;
+	// If I have text
+	SDL_Surface *message;
+public:
+	WinScreen();
+	~WinScreen();
+	void HandleEvents();
+	void Logic();
+	void Render();
+};
+
+
 class GameScreen : public GameState {
 private:
+	SDL_Surface *backgroundImage;
+	SDL_Texture *backgroundTexture;
 	SDL_Point tilePosition;
 	bool draggingTile;
 
@@ -150,6 +155,10 @@ Texture unlockedSpriteTextures;
 int stateID = STATE_NULL;
 int nextState = STATE_NULL;
 GameState *currentState = NULL;
+// Music and sound pointers
+Mix_Music *soundMusic = NULL;
+Mix_Chunk *soundPickUp = NULL;
+Mix_Chunk *soundSet = NULL;
 
 
 //===--- Class & Function Imp ---===
@@ -222,16 +231,6 @@ WinScreen::~WinScreen() {
 	SDL_FreeSurface(winImage);
 }
 GameScreen::GameScreen() {
-	int testBoard[9][9]{ { 0, 1, 2, 8, 6, 7, 3, 9, 4 },
-	{ 4, 9, 7, 5, 2, 3, 8, 1, 6 },
-	{ 8, 6, 3, 9, 1, 4, 7, 2, 5 },
-	{ 7, 5, 9, 4, 3, 6, 1, 8, 2 },
-	{ 2, 8, 1, 7, 9, 5, 6, 4, 3 },
-	{ 6, 3, 4, 1, 8, 2, 5, 7, 9 },
-	{ 1, 7, 6, 3, 4, 9, 2, 5, 8 },
-	{ 9, 2, 8, 6, 5, 1, 4, 3, 7 },
-	{ 3, 4, 5, 2, 7, 8, 9, 6, 1 }
-	};
 	int cross[9][9] = { { 0, 0, 0, 1, 1, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
@@ -240,30 +239,34 @@ GameScreen::GameScreen() {
 	{ 1, 1, 1, 1, 0, 1, 1, 1, 1 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
-	{ 0, 0, 0, 1, 1, 1, 0, 0, 0 } };
-
-	int full[9][9] = { { 0, 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1 } };
+	{ 0, 0, 0, 1, 1, 1, 0, 0, 0 }
+	};
+	
+	backgroundImage = IMG_Load("assets/background.png");
+	if (backgroundImage == NULL) {
+		std::cout << "\nCould not load background image : " << IMG_GetError();
+	}
+	else {
+		backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
+	}
+	if (backgroundTexture == NULL) {
+		std::cout << "\nCould not create background texture : " << SDL_GetError();
+	}
 
 	int masterGameBoard[9][9] = { { 0 } };
 	BoardGenerator boardGenerator;
 	boardGenerator.FillCells();
 	boardGenerator.PrintBoard();
 	tempTile.SetPosition(999, 999);
-	SetupBoard(boardGenerator.board, full);
+	SetupBoard(boardGenerator.board, cross);
 	AddPadding();
 
 
 }
 TitleScreen::TitleScreen() {
-
+	if (Mix_PlayingMusic() == 0) {
+		Mix_PlayMusic(soundMusic, -1);
+	}
 	titleImage = IMG_Load("assets/title.png");
 
 	if (titleImage == NULL) {
@@ -298,9 +301,21 @@ GameScreen::~GameScreen() {
 }
 
 void GameScreen::Render() {
-	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.b, backgroundColor.g, backgroundColor.a);
 	SDL_RenderClear(renderer);
 
+	// Draw background
+	SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+
+	//Draw game board mat
+	SDL_Rect boardMat;
+	boardMat.x = PADDING_X - TILE_HEIGHT;
+	boardMat.y = PADDING_Y - TILE_HEIGHT;
+	boardMat.h = PADDING_Y + (TILE_HEIGHT * TILE_COUNT);
+	boardMat.w = PADDING_X + (TILE_HEIGHT * TILE_COUNT);;
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(renderer, &boardMat);
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
 			gameBoard[i][j].Render();
@@ -324,7 +339,7 @@ void GameScreen::Render() {
 		guiTiles[i].Render();
 	}
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.b, borderColor.g, SDL_ALPHA_OPAQUE);
 
 	// Draw main Sudoku box outline
 	// gameBoard[i][j].SetPosition((TILE_WIDTH * j) + PADDING_X, (TILE_HEIGHT * i) + PADDING_Y);
@@ -493,6 +508,7 @@ void GameScreen::HandleEvents() {
 					event.button.y < guiTiles[i].GetY() + TILE_HEIGHT) {
 					tempTile = guiTiles[i];
 					draggingTile = true;
+					Mix_PlayChannel(-1, soundPickUp, 0);
 				}
 
 			}
@@ -506,6 +522,7 @@ void GameScreen::HandleEvents() {
 							event.button.x < gameBoard[i][j].GetX() + TILE_WIDTH &&
 							event.button.y > gameBoard[i][j].GetY() &&
 							event.button.y < gameBoard[i][j].GetY() + TILE_HEIGHT) {
+							Mix_PlayChannel(-1, soundSet, 0);
 							if (!gameBoard[i][j].Locked()) {
 								gameBoard[i][j].SetSprite(tempTile.GetSprite());
 								gameBoard[i][j].SetValue(tempTile.GetValue());
@@ -705,7 +722,7 @@ void Tile::Render() {
 bool Init() {
 	bool success = true;
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		std::cout << "\nCould not initialize: " << SDL_GetError();
 		success = false;
 	}
@@ -732,6 +749,12 @@ bool Init() {
 					std::cout << "\nSDL_Image could not initialize: " << IMG_GetError();
 					success = false;
 				}
+
+				// Initi mixer
+				if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+					std::cout << "\nSDL_Mixer could not initialize: " << Mix_GetError();
+					success = false;
+				}
 			}
 		}
 	}
@@ -741,10 +764,27 @@ bool Init() {
 bool LoadMedia() {
 	bool success = true;
 	if (!tileSpriteSheetTexture.LoadFromFile("assets/all-tiles.png")) {
-		std::cout << "\nFailed to load texture ... ";
+		std::cout << "\nFailed to load texture ... " << IMG_GetError();
 		success = false;
 	}
 	else {
+		// Load music
+
+		soundMusic = Mix_LoadMUS("assets/sound-music.mp3");
+		if (soundMusic == NULL) {
+			std::cout << "\nFailed to load background music ... " << Mix_GetError();
+			success = false;
+		}
+		soundPickUp = Mix_LoadWAV("assets/sound-pickup.wav");
+		if (soundPickUp == NULL) {
+			std::cout << "\nFailed to load pickup sound ... " << Mix_GetError();
+			success = false;
+		}
+		soundSet = Mix_LoadWAV("assets/sound-set.wav");
+		if (soundPickUp == NULL) {
+			std::cout << "\nFailed to load set sound ... " << Mix_GetError();
+			success = false;
+		}
 		// Load the sprite images from the tile sprite sheet
 		for (int i = 0; i < TILE_SPRITE_TOTAL; i++) {
 			spriteSet[i].x = 0;
@@ -760,9 +800,14 @@ bool LoadMedia() {
 			}
 		}
 
-		// Place the spare tiles
+		// Place the GUI tiles
 		for (int i = 0; i < TILE_COUNT; ++i) {
-			guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X, 700);
+			/*if (i == 0) {
+				guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - TILE_WIDTH / 4 - 16, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
+			}
+			else {*/
+				guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - 24, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
+			//}
 			guiTiles[i].SetValue(i);
 		}
 	}
@@ -775,11 +820,23 @@ bool CheckSolved(Tile gameBoard[][9]) {
 }
 void Close() {
 	delete currentState;
+
+	// Free loaded images
 	tileSpriteSheetTexture.Free();
+
+	// Free the sound effects
+	Mix_FreeMusic(soundMusic);
+	Mix_FreeChunk(soundPickUp);
+	Mix_FreeChunk(soundSet);
+
+	//Destroy the window
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	window = NULL;
 	renderer = NULL;
+
+	// Quit the subsystems
+	Mix_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -892,6 +949,7 @@ bool BoardFull() {
 	std::cout << "\nBoard Full - " << boardFull;
 	return boardFull;
 }
+
 bool CheckWin() {
 	std::cout << "\nCheck win ...";
 	bool win = true;
@@ -932,7 +990,6 @@ int main(int argc, char* args[]) {
 			double runTimeS = runTimeMS / 1000.0;
 			std::cout << "\n==-- RunTime : " << runTimeS << " seconds ( " << runTimeMS << " milliseconds)\n";
 
-
 			while (stateID != STATE_EXIT) {
 				currentState->HandleEvents();
 				currentState->Logic();
@@ -942,6 +999,5 @@ int main(int argc, char* args[]) {
 		}
 	}
 	Close();
-
 	return 0;
 }
