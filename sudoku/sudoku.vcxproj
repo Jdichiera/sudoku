@@ -157,9 +157,8 @@
   <ItemGroup>
     <Media Include="assets\background-music.wav" />
     <Media Include="assets\sound-music.mp3" />
-    <Media Include="assets\bgm.wav" />
-    <Media Include="assets\sound-pickup.mp3" />
-    <Media Include="assets\sound-set.mp3" />
+    <Media Include="assets\sound-pickup.wav" />
+    <Media Include="assets\sound-set.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

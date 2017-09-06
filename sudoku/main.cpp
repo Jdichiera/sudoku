@@ -19,6 +19,8 @@ public:
 	virtual ~GameState() {};
 };
 
+
+
 class TitleScreen : public GameState {
 private:
 	SDL_Surface *titleImage;
@@ -59,13 +61,13 @@ private:
 	bool draggingTile;
 
 public:
+	bool playing = false;
 	GameScreen();
 	~GameScreen();
 
 	void HandleEvents();
 	void Logic();
 	void Render();
-
 };
 class Tile {
 public:
@@ -174,7 +176,8 @@ bool CheckWin();
 bool BoardFull();
 void SetState(int newState);
 void ChangeState();
-
+void FadeOut(SDL_Texture *texture);
+void FadeIn(SDL_Texture *texture);
 void SetState(int newState) {
 	std::cout << "\nSetstate";
 	if (nextState != STATE_EXIT) {
@@ -182,6 +185,46 @@ void SetState(int newState) {
 	}
 }
 
+void FadeOut(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 255;
+	while (alpha > 0) {
+		//SDL_Delay(10);
+		alpha -= 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+	//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+	//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
+}
+
+void FadeIn(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 0;
+	while (alpha < 255) {
+		//SDL_Delay(10);
+		std::cout << "\n" << alpha;
+		alpha += 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+		//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+		//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
+}
 void ChangeState() {
 	//std::cout << "\nChangeState - Current :" << nextState << " Next: " << nextState;
 	if (nextState != STATE_NULL) {
@@ -252,7 +295,7 @@ GameScreen::GameScreen() {
 	if (backgroundTexture == NULL) {
 		std::cout << "\nCould not create background texture : " << SDL_GetError();
 	}
-
+	//FadeIn(backgroundTexture);
 	int masterGameBoard[9][9] = { { 0 } };
 	BoardGenerator boardGenerator;
 	boardGenerator.FillCells();
@@ -260,9 +303,9 @@ GameScreen::GameScreen() {
 	tempTile.SetPosition(999, 999);
 	SetupBoard(boardGenerator.board, cross);
 	AddPadding();
-
-
 }
+
+
 TitleScreen::TitleScreen() {
 	if (Mix_PlayingMusic() == 0) {
 		Mix_PlayMusic(soundMusic, -1);
@@ -278,8 +321,10 @@ TitleScreen::TitleScreen() {
 		if (titleTexture == NULL) {
 			std::cout << "\ntitle texture image issue: " << SDL_GetError() << std::endl;
 		}
+		
 	}
 }
+
 
 TitleScreen::~TitleScreen() {
 	SDL_FreeSurface(titleImage);
@@ -301,20 +346,26 @@ GameScreen::~GameScreen() {
 }
 
 void GameScreen::Render() {
-	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.b, backgroundColor.g, backgroundColor.a);
+	/*if (!playing) {
+		FadeIn(backgroundTexture);
+		playing = true;
+	}
+	else {*/
+	//FadeIn(backgroundTexture);
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.b, backgroundColor.g, 0);
 	SDL_RenderClear(renderer);
-
 	// Draw background
 	SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
 	//Draw game board mat
 	SDL_Rect boardMat;
-	boardMat.x = PADDING_X - TILE_HEIGHT;
-	boardMat.y = PADDING_Y - TILE_HEIGHT;
-	boardMat.h = PADDING_Y + (TILE_HEIGHT * TILE_COUNT);
-	boardMat.w = PADDING_X + (TILE_HEIGHT * TILE_COUNT);;
+	boardMat.x = BOARD_MAT_X;
+	boardMat.y = BOARD_MAT_Y;
+	boardMat.h = BOARD_MAT_HEIGHT;
+	boardMat.w = BOARD_MAT_WIDTH;
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
 	SDL_RenderFillRect(renderer, &boardMat);
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
@@ -473,6 +524,7 @@ void GameScreen::Render() {
 	// Mark the unlocked tiles
 	tempTile.Render();
 	SDL_RenderPresent(renderer);
+	//}
 }
 
 void TitleScreen::HandleEvents() {
@@ -485,9 +537,9 @@ void TitleScreen::HandleEvents() {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_RETURN:
+				FadeOut(titleTexture);
 				SetState(STATE_GAME);
 				break;
-
 			}
 			break;
 		}
@@ -743,7 +795,7 @@ bool Init() {
 				success = false;
 			}
 			else {
-				SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 				int imgFlags = IMG_INIT_PNG;
 				if (!(IMG_Init(imgFlags) & imgFlags)) {
 					std::cout << "\nSDL_Image could not initialize: " << IMG_GetError();
@@ -936,6 +988,7 @@ void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 	}
 }
 
+
 bool BoardFull() {
 	bool boardFull = true;
 	for (int i = 0; i < COL_COUNT; ++i) {
@@ -969,6 +1022,7 @@ bool CheckWin() {
 	return win;
 }
 
+
 int main(int argc, char* args[]) {
 	auto time1 = std::chrono::high_resolution_clock::now();
 	std::srand(unsigned(time(NULL)));
@@ -981,7 +1035,7 @@ int main(int argc, char* args[]) {
 			std::cout << "\nFailed to load media ... ";
 		}
 		else {
-
+			//std::cout << "\nmat height: " << BOARD_MAT_HEIGHT << " mat width: " << BOARD_MAT_WIDTH;
 			stateID = STATE_TITLE;
 			currentState = new TitleScreen();
 
@@ -998,6 +1052,7 @@ int main(int argc, char* args[]) {
 			}
 		}
 	}
+
 	Close();
 	return 0;
 }
