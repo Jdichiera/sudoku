@@ -18,15 +18,36 @@ public:
 	virtual void Render() = 0;
 	virtual ~GameState() {};
 };
+class CreditsScreen : public GameState {
+private:
+	SDL_Surface *creditsImage;
+	SDL_Texture *creditsTexture;
+	SDL_Surface *returnButtonImage;
+	SDL_Texture *returnButtonTexture;
+	SDL_Rect returnButton{ 268, 598, 186, 58 };
+	bool mouseOverReturnButton = false;
+public:
+	CreditsScreen();
+	~CreditsScreen();
 
-
-
+	void HandleEvents();
+	void Logic();
+	void Render();
+};
 class TitleScreen : public GameState {
 private:
 	SDL_Surface *titleImage;
 	SDL_Texture *titleTexture;
+	SDL_Surface *playButtonImage;
+	SDL_Texture *playButtonTexture;
+	SDL_Surface *creditsButtonImage;
+	SDL_Texture *creditsButtonTexture;
 	// If I have text
 	SDL_Surface *message;
+	SDL_Rect playButton{ 268, 470, 186, 58 };
+	SDL_Rect creditsButton{ 268, 534, 186, 58 };
+	bool mouseOverPlayButton = false;
+	bool mouseOverCreditsButton = false;
 
 public:
 	TitleScreen();
@@ -36,8 +57,6 @@ public:
 	void Logic();
 	void Render();
 };
-
-
 class WinScreen : public GameState {
 private:
 	SDL_Surface *winImage;
@@ -51,8 +70,6 @@ public:
 	void Logic();
 	void Render();
 };
-
-
 class GameScreen : public GameState {
 private:
 	SDL_Surface *backgroundImage;
@@ -96,8 +113,6 @@ private:
 	int winValue;
 	bool locked;
 };
-
-
 class Texture {
 public:
 	Texture();
@@ -137,11 +152,6 @@ void Close();
 bool CheckSolved(Tile gameBoard[][9]);
 void SetupBoard(int masterGameBoard[][9], int pattern[][9]);
 void AddPadding();
-
-
-
-
-
 //===--- Globals ---===
 //SDL_Surface *screen = NULL;
 SDL_Event event;
@@ -184,7 +194,6 @@ void SetState(int newState) {
 		nextState = newState;
 	}
 }
-
 void FadeOut(SDL_Texture *texture) {
 	/*SDL_Rect overlay;
 	overlay.x = 0;
@@ -204,7 +213,6 @@ void FadeOut(SDL_Texture *texture) {
 		SDL_RenderPresent(renderer);
 	}
 }
-
 void FadeIn(SDL_Texture *texture) {
 	/*SDL_Rect overlay;
 	overlay.x = 0;
@@ -236,6 +244,9 @@ void ChangeState() {
 		case STATE_TITLE:
 			currentState = new TitleScreen();
 			break;
+		case STATE_CREDITS:
+			currentState = new CreditsScreen();
+			break;
 		case STATE_GAME:
 			currentState = new GameScreen();
 			break;
@@ -246,6 +257,78 @@ void ChangeState() {
 		stateID = nextState;
 		nextState = STATE_NULL;
 	}
+}
+CreditsScreen::CreditsScreen() {
+	creditsImage = IMG_Load("assets/credits.png");
+	returnButtonImage = IMG_Load("assets/button-return.png");
+	if (creditsImage == NULL) {
+		std::cout << "\nIssue loading credits image";
+	}
+	if (returnButtonImage == NULL) {
+		std::cout << "\nIssue loading return button image";
+	}
+	else {
+		creditsTexture = SDL_CreateTextureFromSurface(renderer, creditsImage);
+		returnButtonTexture = SDL_CreateTextureFromSurface(renderer, returnButtonImage);
+	}
+	if (creditsTexture == NULL) {
+		std::cout << "\nIssue creating credits texture";
+	}
+	if (returnButtonTexture == NULL) {
+		std::cout << "\nIssue creating return button texture";
+	}
+}
+CreditsScreen::~CreditsScreen() {
+	SDL_FreeSurface(creditsImage);
+}
+void CreditsScreen::HandleEvents() {
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT) {
+			SetState(STATE_EXIT);
+		}
+		if (event.type == SDL_MOUSEMOTION) {
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			if (event.button.x > returnButton.x && event.button.x < returnButton.x + returnButton.w &&
+				event.button.y > returnButton.y && event.button.y < returnButton.y + returnButton.h) {
+				mouseOverReturnButton = true;
+			}
+			else {
+				mouseOverReturnButton = false;
+			}
+		}
+		if (event.type == SDL_MOUSEBUTTONDOWN) {
+			if (event.button.x > returnButton.x && event.button.x < returnButton.x + returnButton.w &&
+				event.button.y > returnButton.y && event.button.y < returnButton.y + returnButton.h) {
+				FadeOut(creditsTexture);
+				SetState(STATE_TITLE);
+			}
+		}
+	}
+}
+void CreditsScreen::Logic() {
+
+}
+void CreditsScreen::Render() {
+	// 268, 598, 186, 58
+	if (mouseOverReturnButton) {
+		returnButton.x = 264;
+		returnButton.y = 595;
+		returnButton.w = 194;
+		returnButton.h = 66;
+	}
+	else {
+		returnButton.x = 268;
+		returnButton.y = 598;
+		returnButton.w = 186;
+		returnButton.h = 59;
+	}
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, creditsTexture, NULL, NULL);
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+	//SDL_RenderFillRect(renderer, &returnButton);
+	SDL_RenderCopy(renderer, returnButtonTexture, NULL, &returnButton);
+	SDL_RenderPresent(renderer);
 }
 WinScreen::WinScreen() {
 	winImage = IMG_Load("assets/win.png");
@@ -263,7 +346,6 @@ void WinScreen::Render() {
 	SDL_RenderCopy(renderer, winTexture, NULL, NULL);
 	SDL_RenderPresent(renderer);
 }
-
 void WinScreen::HandleEvents() {
 
 }
@@ -304,47 +386,85 @@ GameScreen::GameScreen() {
 	SetupBoard(boardGenerator.board, cross);
 	AddPadding();
 }
-
-
 TitleScreen::TitleScreen() {
 	if (Mix_PlayingMusic() == 0) {
 		Mix_PlayMusic(soundMusic, -1);
 	}
 	titleImage = IMG_Load("assets/title.png");
+	playButtonImage = IMG_Load("assets/button-play.png");
+	creditsButtonImage = IMG_Load("assets/button-credits.png");
 
 	if (titleImage == NULL) {
 		std::cout << "\ntitle image issue";
 	}
+	if (playButtonImage == NULL) {
+		std::cout << "\nPlay button image issue";
+	}
+	if (creditsButtonImage == NULL) {
+		std::cout << "\nCredits button image issue";
+	}
 	else {
 		titleTexture = SDL_CreateTextureFromSurface(renderer, titleImage);
+		playButtonTexture = SDL_CreateTextureFromSurface(renderer, playButtonImage);
+		creditsButtonTexture = SDL_CreateTextureFromSurface(renderer, creditsButtonImage);
 
 		if (titleTexture == NULL) {
 			std::cout << "\ntitle texture image issue: " << SDL_GetError() << std::endl;
 		}
+		if (playButtonTexture == NULL) {
+			std::cout << "\nPlay button texture image issue: " << SDL_GetError() << std::endl;
+		}
+		if (creditsButtonTexture == NULL) {
+			std::cout << "\nCredits button texture image issue: " << SDL_GetError() << std::endl;
+		}
 		
 	}
 }
-
-
 TitleScreen::~TitleScreen() {
 	SDL_FreeSurface(titleImage);
 }
-
 void TitleScreen::Render() {
+	if (mouseOverPlayButton) {
+		playButton.x = 264;
+		playButton.y = 466;
+		playButton.w = 194;
+		playButton.h = 66;
+	}
+	else {
+		playButton.x = 268;
+		playButton.y = 470;
+		playButton.w = 186;
+		playButton.h = 59;
+	}
+	if (mouseOverCreditsButton) {
+		creditsButton.x = 264;
+		creditsButton.y = 530;
+		creditsButton.w = 194;
+		creditsButton.h = 66;
+	}
+	else {
+		creditsButton.x = 268;
+		creditsButton.y = 534;
+		creditsButton.w = 186;
+		creditsButton.h = 59;
+	}
+	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, titleTexture, NULL, NULL);
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+	//SDL_RenderFillRect(renderer, &playButton);
+	SDL_RenderCopy(renderer, playButtonTexture, NULL, &playButton);
+	SDL_RenderCopy(renderer, creditsButtonTexture, NULL, &creditsButton);
+	//SDL_RenderFillRect(renderer, &creditsButton);
 	SDL_RenderPresent(renderer);
 }
-
 void TitleScreen::Logic() {
 
 }
-
 void GameScreen::Logic() {
 
 }
 GameScreen::~GameScreen() {
 }
-
 void GameScreen::Render() {
 	/*if (!playing) {
 		FadeIn(backgroundTexture);
@@ -526,26 +646,64 @@ void GameScreen::Render() {
 	SDL_RenderPresent(renderer);
 	//}
 }
-
 void TitleScreen::HandleEvents() {
-
 	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-		case SDL_QUIT:
+		if (event.type == SDL_QUIT) {
 			SetState(STATE_EXIT);
-			break;
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-			case SDLK_RETURN:
+		}
+		if (event.type == SDL_MOUSEMOTION) {
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			if (event.button.x > playButton.x && event.button.x < playButton.x + playButton.w &&
+				event.button.y > playButton.y && event.button.y < playButton.y + playButton.h) {
+				mouseOverPlayButton = true;
+				mouseOverCreditsButton = false;
+			}
+			else if (event.button.x > creditsButton.x && event.button.x < creditsButton.x + creditsButton.w &&
+				event.button.y > creditsButton.y && event.button.y < creditsButton.y + creditsButton.h) {
+				mouseOverCreditsButton = true;
+				mouseOverPlayButton = false;
+			}
+			else {
+				mouseOverPlayButton = false;
+				mouseOverCreditsButton = false;
+			}
+
+		}
+		if (event.type == SDL_MOUSEBUTTONDOWN) {
+			if (event.button.x > playButton.x && event.button.x < playButton.x + playButton.w &&
+				event.button.y > playButton.y && event.button.y < playButton.y + playButton.h) {
 				FadeOut(titleTexture);
 				SetState(STATE_GAME);
+			}
+			if (event.button.x > creditsButton.x && event.button.x < creditsButton.x + creditsButton.w &&
+				event.button.y > creditsButton.y && event.button.y < creditsButton.y + creditsButton.h) {
+				 FadeOut(titleTexture);
+				 SetState(STATE_CREDITS);
+			}
+		}
+
+
+		/*	switch (event.type) {
+			case SDL_QUIT:
+				SetState(STATE_EXIT);
+				break;
+			case SDL_KEYDOWN:
+		std::cout << "\nEvent";
+				switch (event.key.keysym.sym) {
+				case SDLK_RETURN:
+					FadeOut(titleTexture);
+					SetState(STATE_GAME);
+					break;
+				}
 				break;
 			}
-			break;
-		}
-	}
-}
+		}*/
 
+
+	}
+
+}
 void GameScreen::HandleEvents() {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
@@ -607,15 +765,12 @@ void Tile::LockTile() {
 void Tile::UnlockTile() {
 	this->locked = false;
 }
-
 void Tile::SetValue(int newValue) {
 	value = newValue;
 }
-
 void Tile::SetWinValue(int newValue) {
 	winValue = newValue;
 }
-
 Tile::Tile() {
 	position.x = 0;
 	position.y = 0;
@@ -623,11 +778,9 @@ Tile::Tile() {
 	value = 0;
 	locked = true;
 }
-
 SDL_Point Tile::GetPosition() {
 	return position;
 }
-
 int Tile::GetX() {
 	return position.x;
 }
@@ -637,7 +790,6 @@ int Tile::GetY() {
 int Tile::GetValue() {
 	return value;
 }
-
 int Tile::GetWinValue() {
 	return winValue;
 }
@@ -648,7 +800,6 @@ void Tile::SetPosition(int x, int y) {
 	position.x = x;
 	position.y = y;
 }
-
 bool Tile::MouseOver() {
 	bool mouseOver = true;
 	int x;
@@ -671,17 +822,14 @@ bool Tile::MouseOver() {
 
 	return mouseOver;
 }
-
 Texture::Texture() {
 	texture = NULL;
 	width = 0;
 	height = 0;
 }
-
 Texture::~Texture() {
 	Free();
 }
-
 bool Texture::LoadFromFile(std::string path) {
 	Free();
 	SDL_Texture* newTexture = NULL;
@@ -705,7 +853,6 @@ bool Texture::LoadFromFile(std::string path) {
 	this->texture = newTexture;
 	return this->texture != NULL;
 }
-
 #ifdef _SDL_TTF_H
 bool Texture::LoadFromRenderedText(std::string textureText, SDL_Color textColor) {
 	Free();
@@ -727,7 +874,6 @@ bool Texture::LoadFromRenderedText(std::string textureText, SDL_Color textColor)
 	return texture != NULL;
 }
 #endif
-
 void Texture::Free() {
 	if (texture != NULL) {
 		SDL_DestroyTexture(texture);
@@ -736,20 +882,15 @@ void Texture::Free() {
 		height = 0;
 	}
 }
-
-
 void Texture::SetColor(int red, int green, int blue) {
 	SDL_SetTextureColorMod(texture, red, green, blue);
 }
-
 void Texture::SetBlendMode(SDL_BlendMode blending) {
 	SDL_SetTextureBlendMode(texture, blending);
 }
-
 void Texture::SetAlpha(int alpha) {
 	SDL_SetTextureAlphaMod(texture, alpha);
 }
-
 void Texture::Render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center,
 	SDL_RendererFlip flip) {
 	SDL_Rect renderQuad = { x, y, width, height };
@@ -759,15 +900,12 @@ void Texture::Render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cent
 	}
 	SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
 }
-
 int Texture::GetWidth() {
 	return width;
 }
-
 int Texture::GetHeight() {
 	return height;
 }
-
 void Tile::Render() {
 	tileSpriteSheetTexture.Render(position.x, position.y, &spriteSet[currentSprite]);
 }
@@ -812,7 +950,6 @@ bool Init() {
 	}
 	return success;
 }
-
 bool LoadMedia() {
 	bool success = true;
 	if (!tileSpriteSheetTexture.LoadFromFile("assets/all-tiles.png")) {
@@ -865,7 +1002,6 @@ bool LoadMedia() {
 	}
 	return success;
 }
-
 bool CheckSolved(Tile gameBoard[][9]) {
 	bool solved = false;
 	return solved;
@@ -892,7 +1028,6 @@ void Close() {
 	IMG_Quit();
 	SDL_Quit();
 }
-
 void AddPadding() {
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
@@ -922,7 +1057,6 @@ void ClearCells(int pattern[][9]) {
 		}
 	}
 }
-
 void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
@@ -987,8 +1121,6 @@ void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 		}
 	}
 }
-
-
 bool BoardFull() {
 	bool boardFull = true;
 	for (int i = 0; i < COL_COUNT; ++i) {
@@ -1002,7 +1134,6 @@ bool BoardFull() {
 	std::cout << "\nBoard Full - " << boardFull;
 	return boardFull;
 }
-
 bool CheckWin() {
 	std::cout << "\nCheck win ...";
 	bool win = true;
@@ -1021,8 +1152,6 @@ bool CheckWin() {
 	}
 	return win;
 }
-
-
 int main(int argc, char* args[]) {
 	auto time1 = std::chrono::high_resolution_clock::now();
 	std::srand(unsigned(time(NULL)));

@@ -141,6 +141,10 @@
     <Image Include="assets\all-tiles.png" />
     <Image Include="assets\background.png" />
     <Image Include="assets\background2.png" />
+    <Image Include="assets\button-credits.png" />
+    <Image Include="assets\button-play.png" />
+    <Image Include="assets\button-return.png" />
+    <Image Include="assets\credits.png" />
     <Image Include="assets\tiles.png" />
     <Image Include="assets\title.png" />
     <Image Include="assets\win.png" />
