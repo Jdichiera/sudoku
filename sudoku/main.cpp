@@ -8,6 +8,7 @@
 #include "constants.h"
 #include <chrono>
 #include <thread>
+#include <random>
 
 
 //===--- Class & Function Def ---===
@@ -80,6 +81,7 @@ private:
 	SDL_Rect playAgainButton{ 268, 800, 186, 58 };
 	int rotation;
 	int direction;
+	bool debug;
 	bool draggingTile;
 	bool solved;
 	bool mouseOverPlayAgainButton;
@@ -93,6 +95,7 @@ public:
 	void Logic();
 	void Render();
 	void CheckSolved();
+	void DigHoles();
 };
 class Tile {
 public:
@@ -158,9 +161,9 @@ bool Init();
 bool LoadMedia();
 void Close();
 //void Reset();
-bool CheckSolved(Tile gameBoard[][9]);
-void SetupBoard(int masterGameBoard[][9], int pattern[][9]);
-void AddPadding();
+//bool CheckSolved(Tile gameBoard[][9]);
+void SetupBoard(int masterGameBoard[][9]/*, int pattern[][9]*/);
+//void AddPadding();
 //===--- Globals ---===
 //SDL_Surface *screen = NULL;
 SDL_Event event;
@@ -365,7 +368,7 @@ WinScreen::~WinScreen() {
 	SDL_FreeSurface(winImage);
 }
 GameScreen::GameScreen() {
-	int cross[9][9] = { { 0, 0, 0, 1, 1, 1, 0, 0, 0 },
+	/*int cross[9][9] = { { 0, 0, 0, 1, 1, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
 	{ 1, 1, 1, 1, 0, 1, 1, 1, 1 },
@@ -385,8 +388,9 @@ GameScreen::GameScreen() {
 	{ 1, 7, 6, 3, 4, 9, 2, 5, 8 },
 	{ 9, 2, 8, 6, 5, 1, 4, 3, 7 },
 	{ 3, 4, 5, 2, 7, 8, 9, 6, 1 }
-	};
+	};*/
 
+	debug = true;
 	direction = 1;
 	rotation = 0;
 	solved = false;
@@ -417,8 +421,79 @@ GameScreen::GameScreen() {
 	boardGenerator.FillCells();
 	boardGenerator.PrintBoard();
 	tempTile.SetPosition(999, 999);
-	SetupBoard(boardGenerator.board, testBoard);
+	SetupBoard(boardGenerator.board/*, holes*/);
+	DigHoles();
 	//AddPadding();
+}
+void GameScreen::DigHoles() {
+	//int boardPattern[9]{ 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	int boardPattern[9]{ 1 };
+	int firstRows[4]{ 0 };
+	int maxHoles = 0;
+	int digHole = 0;
+	int holeCount = 0;
+	// Each row will have 3 to 8 holes dug in it
+	// The hole placement will be random but the number of holes in each row
+	// will be a pattern. The last four rows are the reverse of the first four. 
+	//  EX : Pattern 4, 2, 4, 3, 4, 3, 4, 2, 4
+	//		Row 1 : 4
+	//		Row 2 : 2
+	//		Row 3 : 4
+	//		Row 4 : 3
+	//		Row 5 : 4
+	//		Row 6 : 3
+	//		Row 7 : 4
+	//		Row 8 : 2
+	//		Row 9 : 4
+	// Generate 4 random numbers between 1 and 5
+	// Add those numbers to a pattern array
+	// Generate the middle number and add it to the pattern array
+	// reverse the first four numbers and add them to the pattern array
+	if (debug == false){
+		for (int i = 0; i < 5; i++) {
+			boardPattern[i] = rand() % 6 + 1;
+		}
+
+
+		for (int j = 5; j < 9; j++) {
+			boardPattern[j] = boardPattern[8 - j];
+		}
+	}
+	//Count number of holes in board
+	for (int i = 0; i < 9; i++) {
+		holeCount += boardPattern[i];
+	}
+	for (int i = 0; i < 9; i++) {
+		std::cout << boardPattern[i];
+	}
+	std::cout << " : " << holeCount;
+	// Generate a board pattern:
+	// For each row, determine the number of holes
+	for (int i = 0; i < 9; i++) {
+		maxHoles = boardPattern[i];
+		for (int j = 0; j < 9; j++) {
+			if (gameBoard[i][j].GetValue() != 0) {
+				if (maxHoles > 0) {
+					digHole = rand() % 10;
+					if (digHole % 2 == 0) {
+						gameBoard[i][j].SetValue(0);
+						gameBoard[i][j].SetSprite(UNLOCKED_TILE_BLANK);
+						gameBoard[i][j].UnlockTile();
+						maxHoles--;
+					}
+				}
+			}
+			if (j == 8) {
+				if (maxHoles != 0) {
+					j = -1;
+				}
+			}
+		}
+	}
+	// For each cell pull a random number to determine if the hole is dug
+	// If the hole is dug, clear the cell and decrease the numver of available holes
+	// If there are no available holes, move to the next row
+
 }
 TitleScreen::TitleScreen() {
 	if (Mix_PlayingMusic() == 0) {
@@ -555,7 +630,6 @@ void GameScreen::Render() {
 		}
 	}
 	
-
 	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.b, borderColor.g, SDL_ALPHA_OPAQUE);
 
 	// Draw main Sudoku box outline
@@ -688,10 +762,10 @@ void GameScreen::Render() {
 	SDL_RenderFillRect(renderer, &rightBotRightV);
 
 	if (solved == true) {
-		if (rotation == 16) {
+		if (rotation == 10) {
 			direction = -1;
 		}
-		else if (rotation == -16) {
+		else if (rotation == -10) {
 			direction = 1;
 		}
 
@@ -1131,24 +1205,24 @@ void Close() {
 	IMG_Quit();
 	SDL_Quit();
 }
-void AddPadding() {
-	for (int i = 0; i < COL_COUNT; ++i) {
-		for (int j = 0; j < ROW_COUNT; ++j) {
-			if (i > 2) {
-				gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
-				if (i > 5) {
-					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
-				}
-			}
-			if (j > 2) {
-				gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
-				if (j > 5) {
-					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
-				}
-			}
-		}
-	}
-}
+//void AddPadding() {
+//	for (int i = 0; i < COL_COUNT; ++i) {
+//		for (int j = 0; j < ROW_COUNT; ++j) {
+//			if (i > 2) {
+//				gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
+//				if (i > 5) {
+//					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
+//				}
+//			}
+//			if (j > 2) {
+//				gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
+//				if (j > 5) {
+//					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
+//				}
+//			}
+//		}
+//	}
+//}
 //void ClearCells(int pattern[][9]) {
 //	for (int i = 0; i < 9; i++) {
 //		for (int j = 0; j < 9; j++) {
@@ -1160,7 +1234,7 @@ void AddPadding() {
 //		}
 //	}
 //}
-void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
+void SetupBoard(int masterGameBoard[][9]/*, int *pattern*/) {
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
 
@@ -1213,12 +1287,6 @@ void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 			default:
 				gameBoard[i][j].SetSprite(LOCKED_TILE_BLANK);
 				break;
-
-			}
-			if (pattern[i][j] == 0) {
-				gameBoard[i][j].SetValue(0);
-				gameBoard[i][j].SetSprite(UNLOCKED_TILE_BLANK);
-				gameBoard[i][j].UnlockTile();
 
 			}
 		}
