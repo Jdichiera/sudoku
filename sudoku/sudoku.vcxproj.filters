@@ -45,6 +45,9 @@
     <Image Include="assets\credits.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\button-play-again.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

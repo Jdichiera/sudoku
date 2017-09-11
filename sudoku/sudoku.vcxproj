@@ -142,6 +142,7 @@
     <Image Include="assets\background.png" />
     <Image Include="assets\background2.png" />
     <Image Include="assets\button-credits.png" />
+    <Image Include="assets\button-play-again.png" />
     <Image Include="assets\button-play.png" />
     <Image Include="assets\button-return.png" />
     <Image Include="assets\credits.png" />

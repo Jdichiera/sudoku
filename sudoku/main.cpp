@@ -74,8 +74,15 @@ class GameScreen : public GameState {
 private:
 	SDL_Surface *backgroundImage;
 	SDL_Texture *backgroundTexture;
+	SDL_Surface *playAgainImage;
+	SDL_Texture *playAgainTexture;
 	SDL_Point tilePosition;
+	SDL_Rect playAgainButton{ 268, 800, 186, 58 };
+	int rotation;
+	int direction;
 	bool draggingTile;
+	bool solved;
+	bool mouseOverPlayAgainButton;
 
 public:
 	bool playing = false;
@@ -85,6 +92,7 @@ public:
 	void HandleEvents();
 	void Logic();
 	void Render();
+	void CheckSolved();
 };
 class Tile {
 public:
@@ -149,6 +157,7 @@ private:
 bool Init();
 bool LoadMedia();
 void Close();
+//void Reset();
 bool CheckSolved(Tile gameBoard[][9]);
 void SetupBoard(int masterGameBoard[][9], int pattern[][9]);
 void AddPadding();
@@ -366,16 +375,41 @@ GameScreen::GameScreen() {
 	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
 	{ 0, 0, 0, 1, 1, 1, 0, 0, 0 }
 	};
-	
+
+	int testBoard[9][9]{ { 0, 1, 2, 8, 6, 7, 3, 9, 4 },
+	{ 4, 9, 7, 5, 2, 3, 8, 1, 6 },
+	{ 8, 6, 3, 9, 1, 4, 7, 2, 5 },
+	{ 7, 5, 9, 4, 3, 6, 1, 8, 2 },
+	{ 2, 8, 1, 7, 9, 5, 6, 4, 3 },
+	{ 6, 3, 4, 1, 8, 2, 5, 7, 9 },
+	{ 1, 7, 6, 3, 4, 9, 2, 5, 8 },
+	{ 9, 2, 8, 6, 5, 1, 4, 3, 7 },
+	{ 3, 4, 5, 2, 7, 8, 9, 6, 1 }
+	};
+
+	direction = 1;
+	rotation = 0;
+	solved = false;
+	mouseOverPlayAgainButton = false;
 	backgroundImage = IMG_Load("assets/background.png");
+	playAgainImage = IMG_Load("assets/button-play-again.png");
 	if (backgroundImage == NULL) {
 		std::cout << "\nCould not load background image : " << IMG_GetError();
 	}
 	else {
 		backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
 	}
+	if (playAgainImage == NULL) {
+		std::cout << "\nCould not load play again button image : " << IMG_GetError();
+	}
+	else {
+		playAgainTexture = SDL_CreateTextureFromSurface(renderer, playAgainImage);
+	}
 	if (backgroundTexture == NULL) {
 		std::cout << "\nCould not create background texture : " << SDL_GetError();
+	}
+	if (playAgainTexture == NULL) {
+		std::cout << "\nCould not create play again texture : " << SDL_GetError();
 	}
 	//FadeIn(backgroundTexture);
 	int masterGameBoard[9][9] = { { 0 } };
@@ -383,8 +417,8 @@ GameScreen::GameScreen() {
 	boardGenerator.FillCells();
 	boardGenerator.PrintBoard();
 	tempTile.SetPosition(999, 999);
-	SetupBoard(boardGenerator.board, cross);
-	AddPadding();
+	SetupBoard(boardGenerator.board, testBoard);
+	//AddPadding();
 }
 TitleScreen::TitleScreen() {
 	if (Mix_PlayingMusic() == 0) {
@@ -450,11 +484,8 @@ void TitleScreen::Render() {
 	}
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, titleTexture, NULL, NULL);
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-	//SDL_RenderFillRect(renderer, &playButton);
 	SDL_RenderCopy(renderer, playButtonTexture, NULL, &playButton);
 	SDL_RenderCopy(renderer, creditsButtonTexture, NULL, &creditsButton);
-	//SDL_RenderFillRect(renderer, &creditsButton);
 	SDL_RenderPresent(renderer);
 }
 void TitleScreen::Logic() {
@@ -463,15 +494,28 @@ void TitleScreen::Logic() {
 void GameScreen::Logic() {
 
 }
+void GameScreen::CheckSolved() {
+	std::cout << "\nCheck win ...";
+	bool win = true;
+
+	for (int i = 0; i < COL_COUNT; ++i) {
+		for (int j = 0; j < ROW_COUNT; ++j) {
+			if (gameBoard[i][j].GetValue() != gameBoard[i][j].GetWinValue()) {
+				win = false;
+				break;
+			}
+		}
+	}
+	std::cout << "\nGameWon - " << win;
+	if (win) {
+		//SetState(STATE_WIN);
+		solved = true;
+	}
+	//return win;
+}
 GameScreen::~GameScreen() {
 }
 void GameScreen::Render() {
-	/*if (!playing) {
-		FadeIn(backgroundTexture);
-		playing = true;
-	}
-	else {*/
-	//FadeIn(backgroundTexture);
 	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.b, backgroundColor.g, 0);
 	SDL_RenderClear(renderer);
 	// Draw background
@@ -493,22 +537,24 @@ void GameScreen::Render() {
 		}
 	}
 
+	if (solved == false) {
+		// draw GUI buttons
+		guiTiles[0].SetSprite(UNLOCKED_TILE_BLANK);
+		guiTiles[1].SetSprite(UNLOCKED_TILE_1);
+		guiTiles[2].SetSprite(UNLOCKED_TILE_2);
+		guiTiles[3].SetSprite(UNLOCKED_TILE_3);
+		guiTiles[4].SetSprite(UNLOCKED_TILE_4);
+		guiTiles[5].SetSprite(UNLOCKED_TILE_5);
+		guiTiles[6].SetSprite(UNLOCKED_TILE_6);
+		guiTiles[7].SetSprite(UNLOCKED_TILE_7);
+		guiTiles[8].SetSprite(UNLOCKED_TILE_8);
+		guiTiles[9].SetSprite(UNLOCKED_TILE_9);
 
-	// draw GUI buttons
-	guiTiles[0].SetSprite(UNLOCKED_TILE_BLANK);
-	guiTiles[1].SetSprite(UNLOCKED_TILE_1);
-	guiTiles[2].SetSprite(UNLOCKED_TILE_2);
-	guiTiles[3].SetSprite(UNLOCKED_TILE_3);
-	guiTiles[4].SetSprite(UNLOCKED_TILE_4);
-	guiTiles[5].SetSprite(UNLOCKED_TILE_5);
-	guiTiles[6].SetSprite(UNLOCKED_TILE_6);
-	guiTiles[7].SetSprite(UNLOCKED_TILE_7);
-	guiTiles[8].SetSprite(UNLOCKED_TILE_8);
-	guiTiles[9].SetSprite(UNLOCKED_TILE_9);
-
-	for (int i = 0; i < TILE_COUNT; ++i) {
-		guiTiles[i].Render();
+		for (int i = 0; i < TILE_COUNT; ++i) {
+			guiTiles[i].Render();
+		}
 	}
+	
 
 	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.b, borderColor.g, SDL_ALPHA_OPAQUE);
 
@@ -641,10 +687,122 @@ void GameScreen::Render() {
 	SDL_RenderFillRect(renderer, &rightBotLeftV);
 	SDL_RenderFillRect(renderer, &rightBotRightV);
 
+	if (solved == true) {
+		if (rotation == 16) {
+			direction = -1;
+		}
+		else if (rotation == -16) {
+			direction = 1;
+		}
+
+		if (direction == 1) {
+			rotation++;
+		}
+		else if (direction == -1) {
+			rotation--;
+		}
+		if (playAgainButton.y > 675) {
+			playAgainButton.y -= 5;
+		}
+		else {
+			if (mouseOverPlayAgainButton) {
+				playAgainButton.x = 264;
+				playAgainButton.y = 671;
+				playAgainButton.w = 194;
+				playAgainButton.h = 66;
+			}
+			else {
+				playAgainButton.x = 268;
+				playAgainButton.y = 675;
+				playAgainButton.w = 186;
+				playAgainButton.h = 59;
+			}
+		}
+		SDL_RenderCopy(renderer, playAgainTexture, NULL, &playAgainButton);
+		for (int i = 0; i < COL_COUNT; ++i) {
+			for (int j = 0; j < ROW_COUNT; ++j) {
+				tileSpriteSheetTexture.Render(gameBoard[i][j].GetX(), gameBoard[i][j].GetY(), &spriteSet[gameBoard[i][j].GetSprite()], rotation);
+			}
+		}
+	}
 	// Mark the unlocked tiles
 	tempTile.Render();
 	SDL_RenderPresent(renderer);
 	//}
+}
+void GameScreen::HandleEvents() {
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT) {
+			SetState(STATE_EXIT);
+		}
+		if (solved == false) {
+			if (event.type == SDL_MOUSEBUTTONDOWN) {
+				for (int i = 0; i < TILE_COUNT; i++) {
+					tilePosition = guiTiles[i].GetPosition();
+					if (event.button.x > guiTiles[i].GetX() &&
+						event.button.x < guiTiles[i].GetX() + TILE_WIDTH &&
+						event.button.y > guiTiles[i].GetY() &&
+						event.button.y < guiTiles[i].GetY() + TILE_HEIGHT) {
+						tempTile = guiTiles[i];
+						draggingTile = true;
+						Mix_PlayChannel(-1, soundPickUp, 0);
+					}
+
+				}
+			}
+			if (event.type == SDL_MOUSEBUTTONUP) {
+				tempTile.SetPosition(999, 999);
+				if (draggingTile == true) {
+					for (int i = 0; i < COL_COUNT; ++i) {
+						for (int j = 0; j < ROW_COUNT; ++j) {
+							if (event.button.x > gameBoard[i][j].GetX() &&
+								event.button.x < gameBoard[i][j].GetX() + TILE_WIDTH &&
+								event.button.y > gameBoard[i][j].GetY() &&
+								event.button.y < gameBoard[i][j].GetY() + TILE_HEIGHT) {
+								Mix_PlayChannel(-1, soundSet, 0);
+								if (!gameBoard[i][j].Locked()) {
+									gameBoard[i][j].SetSprite(tempTile.GetSprite());
+									gameBoard[i][j].SetValue(tempTile.GetValue());
+									if (BoardFull()) {
+										//CheckWin();
+										CheckSolved();
+									}
+								}
+							}
+						}
+					}
+				}
+				draggingTile = false;
+			}
+			if (event.type == SDL_MOUSEMOTION) {
+				if (draggingTile == true) {
+					tempTile.SetPosition(event.motion.x, event.motion.y);
+				}
+			}
+		}
+		else {
+			if (event.type == SDL_MOUSEMOTION) {
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				if (event.button.x > playAgainButton.x && event.button.x < playAgainButton.x + playAgainButton.w &&
+					event.button.y > playAgainButton.y && event.button.y < playAgainButton.y + playAgainButton.h) {
+					mouseOverPlayAgainButton = true;
+				}
+				else {
+					mouseOverPlayAgainButton = false;
+				}
+
+			}
+			if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.x > playAgainButton.x && event.button.x < playAgainButton.x + playAgainButton.w &&
+					event.button.y > playAgainButton.y && event.button.y < playAgainButton.y + playAgainButton.h) {
+					//FadeOut(playAgainTexture);
+					SetState(STATE_GAME);
+					//Reset();
+				}
+			}
+		}
+	}
 }
 void TitleScreen::HandleEvents() {
 	while (SDL_PollEvent(&event)) {
@@ -682,76 +840,8 @@ void TitleScreen::HandleEvents() {
 				 SetState(STATE_CREDITS);
 			}
 		}
-
-
-		/*	switch (event.type) {
-			case SDL_QUIT:
-				SetState(STATE_EXIT);
-				break;
-			case SDL_KEYDOWN:
-		std::cout << "\nEvent";
-				switch (event.key.keysym.sym) {
-				case SDLK_RETURN:
-					FadeOut(titleTexture);
-					SetState(STATE_GAME);
-					break;
-				}
-				break;
-			}
-		}*/
-
-
 	}
 
-}
-void GameScreen::HandleEvents() {
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_QUIT) {
-			SetState(STATE_EXIT);
-		}
-		if (event.type == SDL_MOUSEBUTTONDOWN) {
-			for (int i = 0; i < TILE_COUNT; i++) {
-				tilePosition = guiTiles[i].GetPosition();
-				if (event.button.x > guiTiles[i].GetX() &&
-					event.button.x < guiTiles[i].GetX() + TILE_WIDTH &&
-					event.button.y > guiTiles[i].GetY() &&
-					event.button.y < guiTiles[i].GetY() + TILE_HEIGHT) {
-					tempTile = guiTiles[i];
-					draggingTile = true;
-					Mix_PlayChannel(-1, soundPickUp, 0);
-				}
-
-			}
-		}
-		if (event.type == SDL_MOUSEBUTTONUP) {
-			tempTile.SetPosition(999, 999);
-			if (draggingTile == true) {
-				for (int i = 0; i < COL_COUNT; ++i) {
-					for (int j = 0; j < ROW_COUNT; ++j) {
-						if (event.button.x > gameBoard[i][j].GetX() &&
-							event.button.x < gameBoard[i][j].GetX() + TILE_WIDTH &&
-							event.button.y > gameBoard[i][j].GetY() &&
-							event.button.y < gameBoard[i][j].GetY() + TILE_HEIGHT) {
-							Mix_PlayChannel(-1, soundSet, 0);
-							if (!gameBoard[i][j].Locked()) {
-								gameBoard[i][j].SetSprite(tempTile.GetSprite());
-								gameBoard[i][j].SetValue(tempTile.GetValue());
-								if (BoardFull()) {
-									CheckWin();
-								}
-							}
-						}
-					}
-				}
-			}
-			draggingTile = false;
-		}
-		if (event.type == SDL_MOUSEMOTION) {
-			if (draggingTile == true) {
-				tempTile.SetPosition(event.motion.x, event.motion.y);
-			}
-		}
-	}
 }
 TileSprite Tile::GetSprite() {
 	return currentSprite;
@@ -989,23 +1079,36 @@ bool LoadMedia() {
 			}
 		}
 
+		// Add padding to the tiles
+		for (int i = 0; i < COL_COUNT; ++i) {
+			for (int j = 0; j < ROW_COUNT; ++j) {
+				if (i > 2) {
+					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
+					if (i > 5) {
+						gameBoard[i][j].SetPosition(gameBoard[i][j].GetX(), gameBoard[i][j].GetY() + 10);
+					}
+				}
+				if (j > 2) {
+					gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
+					if (j > 5) {
+						gameBoard[i][j].SetPosition(gameBoard[i][j].GetX() + 10, gameBoard[i][j].GetY());
+					}
+				}
+			}
+		}
+
 		// Place the GUI tiles
 		for (int i = 0; i < TILE_COUNT; ++i) {
-			/*if (i == 0) {
-				guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - TILE_WIDTH / 4 - 16, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
-			}
-			else {*/
-				guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - 24, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
-			//}
+			guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - 24, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
 			guiTiles[i].SetValue(i);
 		}
 	}
 	return success;
 }
-bool CheckSolved(Tile gameBoard[][9]) {
-	bool solved = false;
-	return solved;
-}
+//bool CheckSolved(Tile gameBoard[][9]) {
+//	bool solved = false;
+//	return solved;
+//}
 void Close() {
 	delete currentState;
 
@@ -1046,17 +1149,17 @@ void AddPadding() {
 		}
 	}
 }
-void ClearCells(int pattern[][9]) {
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			if (pattern[i][j] == 0) {
-				gameBoard[i][j].SetValue(0);
-				gameBoard[i][j].SetSprite(UNLOCKED_TILE_BLANK);
-
-			}
-		}
-	}
-}
+//void ClearCells(int pattern[][9]) {
+//	for (int i = 0; i < 9; i++) {
+//		for (int j = 0; j < 9; j++) {
+//			if (pattern[i][j] == 0) {
+//				gameBoard[i][j].SetValue(0);
+//				gameBoard[i][j].SetSprite(UNLOCKED_TILE_BLANK);
+//
+//			}
+//		}
+//	}
+//}
 void SetupBoard(int masterGameBoard[][9], int pattern[][9]) {
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
@@ -1134,24 +1237,31 @@ bool BoardFull() {
 	std::cout << "\nBoard Full - " << boardFull;
 	return boardFull;
 }
-bool CheckWin() {
-	std::cout << "\nCheck win ...";
-	bool win = true;
-
-	for (int i = 0; i < COL_COUNT; ++i) {
-		for (int j = 0; j < ROW_COUNT; ++j) {
-			if (gameBoard[i][j].GetValue() != gameBoard[i][j].GetWinValue()) {
-				win = false;
-				break;
-			}
-		}
-	}
-	std::cout << "\nGameWon - " << win;
-	if (win) {
-		SetState(STATE_WIN);
-	}
-	return win;
-}
+//void Reset() {
+//	Close();
+//	Init();
+//	LoadMedia();
+//	SetState(STATE_GAME);
+//}
+//bool CheckWin() {
+//	std::cout << "\nCheck win ...";
+//	bool win = true;
+//
+//	for (int i = 0; i < COL_COUNT; ++i) {
+//		for (int j = 0; j < ROW_COUNT; ++j) {
+//			if (gameBoard[i][j].GetValue() != gameBoard[i][j].GetWinValue()) {
+//				win = false;
+//				break;
+//			}
+//		}
+//	}
+//	std::cout << "\nGameWon - " << win;
+//	if (win) {
+//		//SetState(STATE_WIN);
+//		
+//	}
+//	return win;
+//}
 int main(int argc, char* args[]) {
 	auto time1 = std::chrono::high_resolution_clock::now();
 	std::srand(unsigned(time(NULL)));
