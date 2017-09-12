@@ -56,6 +56,9 @@
     <ClCompile Include="board-generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="credit-screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board-generator.h">
@@ -71,6 +74,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="credit-screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="title-screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game-screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

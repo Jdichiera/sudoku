@@ -14,3 +14,9 @@ SDL_Rect spriteSet[TILE_SPRITE_TOTAL];
 Mix_Music *soundMusic = NULL;
 Mix_Chunk *soundPickUp = NULL;
 Mix_Chunk *soundSet = NULL;
+
+bool CheckWin();
+bool BoardFull();
+void SetState(int newState);
+void ChangeState();
+void FadeOut(SDL_Texture *texture);

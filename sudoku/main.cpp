@@ -1,257 +1,14 @@
-
-#include "globals.h"
+//#include "globals.h"
 #include "board-generator.h"
 
 
-#include "game-state.h"
 #include <chrono>
 #include <thread>
 #include <random>
+#include "texture.h"
 
 
 //===--- Class & Function Def ---===
-
-class CreditsScreen : public GameState {
-private:
-	SDL_Surface *creditsImage;
-	SDL_Texture *creditsTexture;
-	SDL_Surface *returnButtonImage;
-	SDL_Texture *returnButtonTexture;
-	SDL_Rect returnButton{ 268, 598, 186, 58 };
-	bool mouseOverReturnButton = false;
-public:
-	CreditsScreen();
-	~CreditsScreen();
-
-	void HandleEvents();
-	void Logic();
-	void Render();
-};
-
-class TitleScreen : public GameState {
-private:
-	SDL_Surface *titleImage;
-	SDL_Texture *titleTexture;
-	SDL_Surface *playButtonImage;
-	SDL_Texture *playButtonTexture;
-	SDL_Surface *creditsButtonImage;
-	SDL_Texture *creditsButtonTexture;
-	// If I have text
-	SDL_Surface *message;
-	SDL_Rect playButton{ 268, 470, 186, 58 };
-	SDL_Rect creditsButton{ 268, 534, 186, 58 };
-	bool mouseOverPlayButton = false;
-	bool mouseOverCreditsButton = false;
-
-public:
-	TitleScreen();
-	~TitleScreen();
-
-	void HandleEvents();
-	void Logic();
-	void Render();
-};
-
-class WinScreen : public GameState {
-private:
-	SDL_Surface *winImage;
-	SDL_Texture *winTexture;
-	// If I have text
-	SDL_Surface *message;
-public:
-	WinScreen();
-	~WinScreen();
-	void HandleEvents();
-	void Logic();
-	void Render();
-};
-
-class GameScreen : public GameState {
-private:
-	SDL_Surface *backgroundImage;
-	SDL_Texture *backgroundTexture;
-	SDL_Surface *playAgainImage;
-	SDL_Texture *playAgainTexture;
-	SDL_Point tilePosition;
-	SDL_Rect playAgainButton{ 268, 800, 186, 58 };
-	int rotation;
-	int direction;
-	bool debug;
-	bool draggingTile;
-	bool solved;
-	bool mouseOverPlayAgainButton;
-
-public:
-	bool playing = false;
-	GameScreen();
-	~GameScreen();
-
-	void HandleEvents();
-	void Logic();
-	void Render();
-	void CheckSolved();
-	void DigHoles();
-};
-class Tile {
-public:
-	Tile();
-	void SetPosition(int x, int y);
-	void HandleEvent(SDL_Event* event);
-	void Render();
-	void SetSprite(TileSprite newSprite);
-	SDL_Point GetPosition();
-	bool MouseOver();
-	int GetValue();
-	int GetWinValue();
-	void SetValue(int newValue);
-	void SetWinValue(int newValue);
-	int GetX();
-	int GetY();
-	void LockTile();
-	bool Locked();
-	void UnlockTile();
-	TileSprite GetSprite();
-
-private:
-	TileSprite currentSprite;
-	SDL_Point position;
-	int value;
-	int winValue;
-	bool locked;
-};
-class Texture {
-public:
-	Texture();
-	~Texture();
-
-	bool LoadFromFile(std::string path);
-
-#ifdef _SDL_TFF_H
-	bool LoadFromRenderedText(std::string textureText, SDL_Color textColor);
-#endif
-
-	void Free();
-
-	void SetColor(int red, int green, int blue);
-
-	void SetBlendMode(SDL_BlendMode blending);
-
-	void SetAlpha(int aplha);
-
-	void Render(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0,
-		SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
-
-	int GetWidth();
-	int GetHeight();
-
-private:
-	SDL_Texture* texture;
-
-	int width;
-	int height;
-
-};
-
-bool Init();
-bool LoadMedia();
-void Close();
-
-void SetupBoard(int masterGameBoard[][9]);
-
-//===--- Globals ---===
-
-
-Tile gameBoard[COL_COUNT][ROW_COUNT];
-Tile guiTiles[10];
-Tile tempTile;
-Texture tileSpriteSheetTexture;
-Texture lockedSpriteTextures;
-Texture unlockedSpriteTextures;
-int stateID = STATE_NULL;
-int nextState = STATE_NULL;
-GameState *currentState = NULL;
-// Music and sound pointers
-
-
-
-//===--- Class & Function Imp ---===
-
-bool CheckWin();
-bool BoardFull();
-void SetState(int newState);
-void ChangeState();
-void FadeOut(SDL_Texture *texture);
-void FadeIn(SDL_Texture *texture);
-void SetState(int newState) {
-	std::cout << "\nSetstate";
-	if (nextState != STATE_EXIT) {
-		nextState = newState;
-	}
-}
-void FadeOut(SDL_Texture *texture) {
-	/*SDL_Rect overlay;
-	overlay.x = 0;
-	overlay.y = 0;
-	overlay.h = SHEIGHT;
-	overlay.w = SWIDTH;*/
-	int alpha = 255;
-	while (alpha > 0) {
-		//SDL_Delay(10);
-		alpha -= 8;
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_SetTextureAlphaMod(texture, alpha);
-	//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-	//	SDL_RenderFillRect(renderer, &overlay);
-		SDL_RenderPresent(renderer);
-	}
-}
-void FadeIn(SDL_Texture *texture) {
-	/*SDL_Rect overlay;
-	overlay.x = 0;
-	overlay.y = 0;
-	overlay.h = SHEIGHT;
-	overlay.w = SWIDTH;*/
-	int alpha = 0;
-	while (alpha < 255) {
-		//SDL_Delay(10);
-		std::cout << "\n" << alpha;
-		alpha += 8;
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_SetTextureAlphaMod(texture, alpha);
-		//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-		//	SDL_RenderFillRect(renderer, &overlay);
-		SDL_RenderPresent(renderer);
-	}
-}
-void ChangeState() {
-	//std::cout << "\nChangeState - Current :" << nextState << " Next: " << nextState;
-	if (nextState != STATE_NULL) {
-		if (nextState != STATE_EXIT) {
-			delete currentState;
-		}
-
-		switch (nextState) {
-		case STATE_TITLE:
-			currentState = new TitleScreen();
-			break;
-		case STATE_CREDITS:
-			currentState = new CreditsScreen();
-			break;
-		case STATE_GAME:
-			currentState = new GameScreen();
-			break;
-		case STATE_WIN:
-			currentState = new WinScreen();
-			break;
-		}
-		stateID = nextState;
-		nextState = STATE_NULL;
-	}
-}
 CreditsScreen::CreditsScreen() {
 	creditsImage = IMG_Load("assets/credits.png");
 	returnButtonImage = IMG_Load("assets/button-return.png");
@@ -324,53 +81,106 @@ void CreditsScreen::Render() {
 	SDL_RenderCopy(renderer, returnButtonTexture, NULL, &returnButton);
 	SDL_RenderPresent(renderer);
 }
-WinScreen::WinScreen() {
-	winImage = IMG_Load("assets/win.png");
-	if (winImage == NULL) {
-		std::cout << "\nIssue loading win image";
-	}
-	else {
-		winTexture = SDL_CreateTextureFromSurface(renderer, winImage);
-	}
-	if (winTexture == NULL) {
-		std::cout << "\nIssue creating win texture";
-	}
-}
-void WinScreen::Render() {
-	SDL_RenderCopy(renderer, winTexture, NULL, NULL);
-	SDL_RenderPresent(renderer);
-}
-void WinScreen::HandleEvents() {
 
-}
-void WinScreen::Logic() {
 
+
+
+bool Init();
+bool LoadMedia();
+void Close();
+
+void SetupBoard(int masterGameBoard[][9]);
+
+//===--- Globals ---===
+
+
+Tile gameBoard[COL_COUNT][ROW_COUNT];
+Tile guiTiles[10];
+Tile tempTile;
+Texture tileSpriteSheetTexture;
+Texture lockedSpriteTextures;
+Texture unlockedSpriteTextures;
+int stateID = STATE_NULL;
+int nextState = STATE_NULL;
+GameState *currentState = NULL;
+// Music and sound pointers
+
+
+
+//===--- Class & Function Imp ---===
+
+
+void FadeIn(SDL_Texture *texture);
+void SetState(int newState) {
+	std::cout << "\nSetstate";
+	if (nextState != STATE_EXIT) {
+		nextState = newState;
+	}
 }
-WinScreen::~WinScreen() {
-	SDL_FreeSurface(winImage);
+void FadeOut(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 255;
+	while (alpha > 0) {
+		//SDL_Delay(10);
+		alpha -= 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+	//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+	//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
 }
+void FadeIn(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 0;
+	while (alpha < 255) {
+		//SDL_Delay(10);
+		std::cout << "\n" << alpha;
+		alpha += 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+		//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+		//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
+}
+void ChangeState() {
+	//std::cout << "\nChangeState - Current :" << nextState << " Next: " << nextState;
+	if (nextState != STATE_NULL) {
+		if (nextState != STATE_EXIT) {
+			delete currentState;
+		}
+
+		switch (nextState) {
+		case STATE_TITLE:
+			currentState = new TitleScreen();
+			break;
+		case STATE_CREDITS:
+			currentState = new CreditsScreen();
+			break;
+		case STATE_GAME:
+			currentState = new GameScreen();
+			break;
+
+		}
+		stateID = nextState;
+		nextState = STATE_NULL;
+	}
+}
+
 GameScreen::GameScreen() {
-	/*int cross[9][9] = { { 0, 0, 0, 1, 1, 1, 0, 0, 0 },
-	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
-	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
-	{ 1, 1, 1, 1, 0, 1, 1, 1, 1 },
-	{ 1, 0, 0, 1, 0, 1, 0, 0, 1 },
-	{ 1, 1, 1, 1, 0, 1, 1, 1, 1 },
-	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
-	{ 0, 0, 0, 1, 0, 1, 0, 0, 0 },
-	{ 0, 0, 0, 1, 1, 1, 0, 0, 0 }
-	};
-
-	int testBoard[9][9]{ { 0, 1, 2, 8, 6, 7, 3, 9, 4 },
-	{ 4, 9, 7, 5, 2, 3, 8, 1, 6 },
-	{ 8, 6, 3, 9, 1, 4, 7, 2, 5 },
-	{ 7, 5, 9, 4, 3, 6, 1, 8, 2 },
-	{ 2, 8, 1, 7, 9, 5, 6, 4, 3 },
-	{ 6, 3, 4, 1, 8, 2, 5, 7, 9 },
-	{ 1, 7, 6, 3, 4, 9, 2, 5, 8 },
-	{ 9, 2, 8, 6, 5, 1, 4, 3, 7 },
-	{ 3, 4, 5, 2, 7, 8, 9, 6, 1 }
-	};*/
 
 	debug = true;
 	direction = 1;
