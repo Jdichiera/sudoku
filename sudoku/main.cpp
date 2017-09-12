@@ -6,19 +6,14 @@
 #include "board-generator.h"
 #include "enums.h"
 #include "constants.h"
+#include "game-state.h"
 #include <chrono>
 #include <thread>
 #include <random>
 
 
 //===--- Class & Function Def ---===
-class GameState {
-public:
-	virtual void HandleEvents() = 0;
-	virtual void Logic() = 0;
-	virtual void Render() = 0;
-	virtual ~GameState() {};
-};
+
 class CreditsScreen : public GameState {
 private:
 	SDL_Surface *creditsImage;

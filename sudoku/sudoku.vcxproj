@@ -158,6 +158,7 @@
     <ClInclude Include="board-generator.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="game-state.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\background-music.wav" />
