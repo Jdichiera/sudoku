@@ -560,9 +560,7 @@ void GameScreen::HandleEvents() {
 			if (event.type == SDL_MOUSEBUTTONDOWN) {
 				if (event.button.x > playAgainButton.x && event.button.x < playAgainButton.x + playAgainButton.w &&
 					event.button.y > playAgainButton.y && event.button.y < playAgainButton.y + playAgainButton.h) {
-					//FadeOut(playAgainTexture);
 					SetState(STATE_GAME);
-					//Reset();
 				}
 			}
 		}
