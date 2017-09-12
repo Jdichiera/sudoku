@@ -1,5 +1,5 @@
 #pragma once
-#include "game-screen.h"
+#include "texture.h"
 class Tile {
 public:
 	Tile();
@@ -19,6 +19,7 @@ public:
 	bool Locked();
 	void UnlockTile();
 	TileSprite GetSprite();
+	
 
 private:
 	TileSprite currentSprite;

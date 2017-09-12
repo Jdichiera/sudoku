@@ -1,5 +1,5 @@
 #pragma once
-#include "credit-screen.h"
+#include "game-state.h"
 class TitleScreen : public GameState {
 private:
 	SDL_Surface *titleImage;

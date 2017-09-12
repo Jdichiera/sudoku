@@ -1,5 +1,5 @@
 #pragma once
-#include "globals.h"
+#include "tile.h"
 class GameState {
 public:
 	virtual void HandleEvents() = 0;

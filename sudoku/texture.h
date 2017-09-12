@@ -1,5 +1,5 @@
 #pragma once
-#include "tile.h"
+#include "globals.h"
 class Texture {
 public:
 	Texture();

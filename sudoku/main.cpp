@@ -5,82 +5,10 @@
 #include <chrono>
 #include <thread>
 #include <random>
-#include "texture.h"
+#include "game-screen.h"
 
 
 //===--- Class & Function Def ---===
-CreditsScreen::CreditsScreen() {
-	creditsImage = IMG_Load("assets/credits.png");
-	returnButtonImage = IMG_Load("assets/button-return.png");
-	if (creditsImage == NULL) {
-		std::cout << "\nIssue loading credits image";
-	}
-	if (returnButtonImage == NULL) {
-		std::cout << "\nIssue loading return button image";
-	}
-	else {
-		creditsTexture = SDL_CreateTextureFromSurface(renderer, creditsImage);
-		returnButtonTexture = SDL_CreateTextureFromSurface(renderer, returnButtonImage);
-	}
-	if (creditsTexture == NULL) {
-		std::cout << "\nIssue creating credits texture";
-	}
-	if (returnButtonTexture == NULL) {
-		std::cout << "\nIssue creating return button texture";
-	}
-}
-CreditsScreen::~CreditsScreen() {
-	SDL_FreeSurface(creditsImage);
-}
-void CreditsScreen::HandleEvents() {
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_QUIT) {
-			SetState(STATE_EXIT);
-		}
-		if (event.type == SDL_MOUSEMOTION) {
-			int x, y;
-			SDL_GetMouseState(&x, &y);
-			if (event.button.x > returnButton.x && event.button.x < returnButton.x + returnButton.w &&
-				event.button.y > returnButton.y && event.button.y < returnButton.y + returnButton.h) {
-				mouseOverReturnButton = true;
-			}
-			else {
-				mouseOverReturnButton = false;
-			}
-		}
-		if (event.type == SDL_MOUSEBUTTONDOWN) {
-			if (event.button.x > returnButton.x && event.button.x < returnButton.x + returnButton.w &&
-				event.button.y > returnButton.y && event.button.y < returnButton.y + returnButton.h) {
-				FadeOut(creditsTexture);
-				SetState(STATE_TITLE);
-			}
-		}
-	}
-}
-void CreditsScreen::Logic() {
-
-}
-void CreditsScreen::Render() {
-	// 268, 598, 186, 58
-	if (mouseOverReturnButton) {
-		returnButton.x = 264;
-		returnButton.y = 595;
-		returnButton.w = 194;
-		returnButton.h = 66;
-	}
-	else {
-		returnButton.x = 268;
-		returnButton.y = 598;
-		returnButton.w = 186;
-		returnButton.h = 59;
-	}
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, creditsTexture, NULL, NULL);
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-	//SDL_RenderFillRect(renderer, &returnButton);
-	SDL_RenderCopy(renderer, returnButtonTexture, NULL, &returnButton);
-	SDL_RenderPresent(renderer);
-}
 
 
 
@@ -89,17 +17,19 @@ bool Init();
 bool LoadMedia();
 void Close();
 
-void SetupBoard(int masterGameBoard[][9]);
+
 
 //===--- Globals ---===
-
-
-Tile gameBoard[COL_COUNT][ROW_COUNT];
-Tile guiTiles[10];
-Tile tempTile;
 Texture tileSpriteSheetTexture;
 Texture lockedSpriteTextures;
 Texture unlockedSpriteTextures;
+
+Tile gameBoard[COL_COUNT][ROW_COUNT];
+Tile guiTiles[10];
+
+
+
+
 int stateID = STATE_NULL;
 int nextState = STATE_NULL;
 GameState *currentState = NULL;
@@ -109,114 +39,6 @@ GameState *currentState = NULL;
 
 //===--- Class & Function Imp ---===
 
-
-void FadeIn(SDL_Texture *texture);
-void SetState(int newState) {
-	std::cout << "\nSetstate";
-	if (nextState != STATE_EXIT) {
-		nextState = newState;
-	}
-}
-void FadeOut(SDL_Texture *texture) {
-	/*SDL_Rect overlay;
-	overlay.x = 0;
-	overlay.y = 0;
-	overlay.h = SHEIGHT;
-	overlay.w = SWIDTH;*/
-	int alpha = 255;
-	while (alpha > 0) {
-		//SDL_Delay(10);
-		alpha -= 8;
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_SetTextureAlphaMod(texture, alpha);
-	//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-	//	SDL_RenderFillRect(renderer, &overlay);
-		SDL_RenderPresent(renderer);
-	}
-}
-void FadeIn(SDL_Texture *texture) {
-	/*SDL_Rect overlay;
-	overlay.x = 0;
-	overlay.y = 0;
-	overlay.h = SHEIGHT;
-	overlay.w = SWIDTH;*/
-	int alpha = 0;
-	while (alpha < 255) {
-		//SDL_Delay(10);
-		std::cout << "\n" << alpha;
-		alpha += 8;
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_SetTextureAlphaMod(texture, alpha);
-		//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-		//	SDL_RenderFillRect(renderer, &overlay);
-		SDL_RenderPresent(renderer);
-	}
-}
-void ChangeState() {
-	//std::cout << "\nChangeState - Current :" << nextState << " Next: " << nextState;
-	if (nextState != STATE_NULL) {
-		if (nextState != STATE_EXIT) {
-			delete currentState;
-		}
-
-		switch (nextState) {
-		case STATE_TITLE:
-			currentState = new TitleScreen();
-			break;
-		case STATE_CREDITS:
-			currentState = new CreditsScreen();
-			break;
-		case STATE_GAME:
-			currentState = new GameScreen();
-			break;
-
-		}
-		stateID = nextState;
-		nextState = STATE_NULL;
-	}
-}
-
-GameScreen::GameScreen() {
-
-	debug = true;
-	direction = 1;
-	rotation = 0;
-	solved = false;
-	mouseOverPlayAgainButton = false;
-	backgroundImage = IMG_Load("assets/background.png");
-	playAgainImage = IMG_Load("assets/button-play-again.png");
-	if (backgroundImage == NULL) {
-		std::cout << "\nCould not load background image : " << IMG_GetError();
-	}
-	else {
-		backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
-	}
-	if (playAgainImage == NULL) {
-		std::cout << "\nCould not load play again button image : " << IMG_GetError();
-	}
-	else {
-		playAgainTexture = SDL_CreateTextureFromSurface(renderer, playAgainImage);
-	}
-	if (backgroundTexture == NULL) {
-		std::cout << "\nCould not create background texture : " << SDL_GetError();
-	}
-	if (playAgainTexture == NULL) {
-		std::cout << "\nCould not create play again texture : " << SDL_GetError();
-	}
-	//FadeIn(backgroundTexture);
-	int masterGameBoard[9][9] = { { 0 } };
-	BoardGenerator boardGenerator;
-	boardGenerator.FillCells();
-	boardGenerator.PrintBoard();
-	tempTile.SetPosition(999, 999);
-	SetupBoard(boardGenerator.board/*, holes*/);
-	DigHoles();
-	//AddPadding();
-}
 void GameScreen::DigHoles() {
 	//int boardPattern[9]{ 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	int boardPattern[9]{ 1 };
@@ -241,7 +63,7 @@ void GameScreen::DigHoles() {
 	// Add those numbers to a pattern array
 	// Generate the middle number and add it to the pattern array
 	// reverse the first four numbers and add them to the pattern array
-	if (debug == false){
+	if (debug == false) {
 		for (int i = 0; i < 5; i++) {
 			boardPattern[i] = rand() % 6 + 1;
 		}
@@ -287,77 +109,8 @@ void GameScreen::DigHoles() {
 	// If there are no available holes, move to the next row
 
 }
-TitleScreen::TitleScreen() {
-	if (Mix_PlayingMusic() == 0) {
-		Mix_PlayMusic(soundMusic, -1);
-	}
-	titleImage = IMG_Load("assets/title.png");
-	playButtonImage = IMG_Load("assets/button-play.png");
-	creditsButtonImage = IMG_Load("assets/button-credits.png");
 
-	if (titleImage == NULL) {
-		std::cout << "\ntitle image issue";
-	}
-	if (playButtonImage == NULL) {
-		std::cout << "\nPlay button image issue";
-	}
-	if (creditsButtonImage == NULL) {
-		std::cout << "\nCredits button image issue";
-	}
-	else {
-		titleTexture = SDL_CreateTextureFromSurface(renderer, titleImage);
-		playButtonTexture = SDL_CreateTextureFromSurface(renderer, playButtonImage);
-		creditsButtonTexture = SDL_CreateTextureFromSurface(renderer, creditsButtonImage);
 
-		if (titleTexture == NULL) {
-			std::cout << "\ntitle texture image issue: " << SDL_GetError() << std::endl;
-		}
-		if (playButtonTexture == NULL) {
-			std::cout << "\nPlay button texture image issue: " << SDL_GetError() << std::endl;
-		}
-		if (creditsButtonTexture == NULL) {
-			std::cout << "\nCredits button texture image issue: " << SDL_GetError() << std::endl;
-		}
-		
-	}
-}
-TitleScreen::~TitleScreen() {
-	SDL_FreeSurface(titleImage);
-}
-void TitleScreen::Render() {
-	if (mouseOverPlayButton) {
-		playButton.x = 264;
-		playButton.y = 466;
-		playButton.w = 194;
-		playButton.h = 66;
-	}
-	else {
-		playButton.x = 268;
-		playButton.y = 470;
-		playButton.w = 186;
-		playButton.h = 59;
-	}
-	if (mouseOverCreditsButton) {
-		creditsButton.x = 264;
-		creditsButton.y = 530;
-		creditsButton.w = 194;
-		creditsButton.h = 66;
-	}
-	else {
-		creditsButton.x = 268;
-		creditsButton.y = 534;
-		creditsButton.w = 186;
-		creditsButton.h = 59;
-	}
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, titleTexture, NULL, NULL);
-	SDL_RenderCopy(renderer, playButtonTexture, NULL, &playButton);
-	SDL_RenderCopy(renderer, creditsButtonTexture, NULL, &creditsButton);
-	SDL_RenderPresent(renderer);
-}
-void TitleScreen::Logic() {
-
-}
 void GameScreen::Logic() {
 
 }
@@ -421,7 +174,7 @@ void GameScreen::Render() {
 			guiTiles[i].Render();
 		}
 	}
-	
+
 	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.b, borderColor.g, SDL_ALPHA_OPAQUE);
 
 	// Draw main Sudoku box outline
@@ -670,6 +423,149 @@ void GameScreen::HandleEvents() {
 		}
 	}
 }
+
+void FadeIn(SDL_Texture *texture);
+void SetState(int newState) {
+	std::cout << "\nSetstate";
+	if (nextState != STATE_EXIT) {
+		nextState = newState;
+	}
+}
+void FadeOut(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 255;
+	while (alpha > 0) {
+		//SDL_Delay(10);
+		alpha -= 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+	//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+	//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
+}
+void FadeIn(SDL_Texture *texture) {
+	/*SDL_Rect overlay;
+	overlay.x = 0;
+	overlay.y = 0;
+	overlay.h = SHEIGHT;
+	overlay.w = SWIDTH;*/
+	int alpha = 0;
+	while (alpha < 255) {
+		//SDL_Delay(10);
+		std::cout << "\n" << alpha;
+		alpha += 8;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_SetTextureAlphaMod(texture, alpha);
+		//	SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
+		//	SDL_RenderFillRect(renderer, &overlay);
+		SDL_RenderPresent(renderer);
+	}
+}
+void ChangeState() {
+	//std::cout << "\nChangeState - Current :" << nextState << " Next: " << nextState;
+	if (nextState != STATE_NULL) {
+		if (nextState != STATE_EXIT) {
+			delete currentState;
+		}
+
+		switch (nextState) {
+		case STATE_TITLE:
+			currentState = new TitleScreen();
+			break;
+		case STATE_CREDITS:
+			currentState = new CreditsScreen();
+			break;
+		case STATE_GAME:
+			currentState = new GameScreen();
+			break;
+
+		}
+		stateID = nextState;
+		nextState = STATE_NULL;
+	}
+}
+
+TitleScreen::TitleScreen() {
+	if (Mix_PlayingMusic() == 0) {
+		Mix_PlayMusic(soundMusic, -1);
+	}
+	titleImage = IMG_Load("assets/title.png");
+	playButtonImage = IMG_Load("assets/button-play.png");
+	creditsButtonImage = IMG_Load("assets/button-credits.png");
+
+	if (titleImage == NULL) {
+		std::cout << "\ntitle image issue";
+	}
+	if (playButtonImage == NULL) {
+		std::cout << "\nPlay button image issue";
+	}
+	if (creditsButtonImage == NULL) {
+		std::cout << "\nCredits button image issue";
+	}
+	else {
+		titleTexture = SDL_CreateTextureFromSurface(renderer, titleImage);
+		playButtonTexture = SDL_CreateTextureFromSurface(renderer, playButtonImage);
+		creditsButtonTexture = SDL_CreateTextureFromSurface(renderer, creditsButtonImage);
+
+		if (titleTexture == NULL) {
+			std::cout << "\ntitle texture image issue: " << SDL_GetError() << std::endl;
+		}
+		if (playButtonTexture == NULL) {
+			std::cout << "\nPlay button texture image issue: " << SDL_GetError() << std::endl;
+		}
+		if (creditsButtonTexture == NULL) {
+			std::cout << "\nCredits button texture image issue: " << SDL_GetError() << std::endl;
+		}
+		
+	}
+}
+TitleScreen::~TitleScreen() {
+	SDL_FreeSurface(titleImage);
+}
+void TitleScreen::Render() {
+	if (mouseOverPlayButton) {
+		playButton.x = 264;
+		playButton.y = 466;
+		playButton.w = 194;
+		playButton.h = 66;
+	}
+	else {
+		playButton.x = 268;
+		playButton.y = 470;
+		playButton.w = 186;
+		playButton.h = 59;
+	}
+	if (mouseOverCreditsButton) {
+		creditsButton.x = 264;
+		creditsButton.y = 530;
+		creditsButton.w = 194;
+		creditsButton.h = 66;
+	}
+	else {
+		creditsButton.x = 268;
+		creditsButton.y = 534;
+		creditsButton.w = 186;
+		creditsButton.h = 59;
+	}
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, titleTexture, NULL, NULL);
+	SDL_RenderCopy(renderer, playButtonTexture, NULL, &playButton);
+	SDL_RenderCopy(renderer, creditsButtonTexture, NULL, &creditsButton);
+	SDL_RenderPresent(renderer);
+}
+void TitleScreen::Logic() {
+
+}
+
 void TitleScreen::HandleEvents() {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
@@ -1097,31 +993,7 @@ bool BoardFull() {
 	std::cout << "\nBoard Full - " << boardFull;
 	return boardFull;
 }
-//void Reset() {
-//	Close();
-//	Init();
-//	LoadMedia();
-//	SetState(STATE_GAME);
-//}
-//bool CheckWin() {
-//	std::cout << "\nCheck win ...";
-//	bool win = true;
-//
-//	for (int i = 0; i < COL_COUNT; ++i) {
-//		for (int j = 0; j < ROW_COUNT; ++j) {
-//			if (gameBoard[i][j].GetValue() != gameBoard[i][j].GetWinValue()) {
-//				win = false;
-//				break;
-//			}
-//		}
-//	}
-//	std::cout << "\nGameWon - " << win;
-//	if (win) {
-//		//SetState(STATE_WIN);
-//		
-//	}
-//	return win;
-//}
+
 int main(int argc, char* args[]) {
 	auto time1 = std::chrono::high_resolution_clock::now();
 	std::srand(unsigned(time(NULL)));
