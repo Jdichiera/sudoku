@@ -1,11 +1,8 @@
-#include <string>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-#include <iostream>
+
+#include "globals.h"
 #include "board-generator.h"
-#include "enums.h"
-#include "constants.h"
+
+
 #include "game-state.h"
 #include <chrono>
 #include <thread>
@@ -30,6 +27,7 @@ public:
 	void Logic();
 	void Render();
 };
+
 class TitleScreen : public GameState {
 private:
 	SDL_Surface *titleImage;
@@ -53,6 +51,7 @@ public:
 	void Logic();
 	void Render();
 };
+
 class WinScreen : public GameState {
 private:
 	SDL_Surface *winImage;
@@ -66,6 +65,7 @@ public:
 	void Logic();
 	void Render();
 };
+
 class GameScreen : public GameState {
 private:
 	SDL_Surface *backgroundImage;
@@ -155,16 +155,12 @@ private:
 bool Init();
 bool LoadMedia();
 void Close();
-//void Reset();
-//bool CheckSolved(Tile gameBoard[][9]);
-void SetupBoard(int masterGameBoard[][9]/*, int pattern[][9]*/);
-//void AddPadding();
+
+void SetupBoard(int masterGameBoard[][9]);
+
 //===--- Globals ---===
-//SDL_Surface *screen = NULL;
-SDL_Event event;
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-SDL_Rect spriteSet[TILE_SPRITE_TOTAL];
+
+
 Tile gameBoard[COL_COUNT][ROW_COUNT];
 Tile guiTiles[10];
 Tile tempTile;
@@ -175,20 +171,11 @@ int stateID = STATE_NULL;
 int nextState = STATE_NULL;
 GameState *currentState = NULL;
 // Music and sound pointers
-Mix_Music *soundMusic = NULL;
-Mix_Chunk *soundPickUp = NULL;
-Mix_Chunk *soundSet = NULL;
+
 
 
 //===--- Class & Function Imp ---===
-//TempTile::TempTile() {
-//	currentSprite = TILE_BLANK;
-//	value = 0;
-//}
-//void TempTile::HoldTile(TileSprite newSprite, int newValue) {
-//	currentSprite = newSprite;
-//	value = newValue;
-//}
+
 bool CheckWin();
 bool BoardFull();
 void SetState(int newState);

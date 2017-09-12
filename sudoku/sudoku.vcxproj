@@ -159,6 +159,7 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="game-state.h" />
+    <ClInclude Include="globals.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\background-music.wav" />
