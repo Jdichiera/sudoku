@@ -3,6 +3,7 @@
 class Tile {
 public:
 	Tile();
+	~Tile();
 	void SetPosition(int x, int y);
 	void HandleEvent(SDL_Event* event);
 	void Render();
@@ -19,7 +20,8 @@ public:
 	bool Locked();
 	void UnlockTile();
 	TileSprite GetSprite();
-	
+	Texture tileSpriteSheetTexture;
+	Texture GetTexture();
 
 private:
 	TileSprite currentSprite;
@@ -28,3 +30,6 @@ private:
 	int winValue;
 	bool locked;
 };
+Texture Tile::GetTexture() {
+	return tileSpriteSheetTexture;
+}

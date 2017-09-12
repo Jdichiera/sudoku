@@ -18,6 +18,7 @@ Mix_Music *soundMusic = NULL;
 Mix_Chunk *soundPickUp = NULL;
 Mix_Chunk *soundSet = NULL;
 
+
 bool CheckWin();
 bool BoardFull();
 void SetState(int newState);
