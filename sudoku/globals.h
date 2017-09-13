@@ -21,12 +21,9 @@ Mix_Chunk *soundSet = NULL;
 int stateID = STATE_NULL;
 int nextState = STATE_NULL;
 
-//bool CheckWin();
-//bool BoardFull();
 void SetState(int newState);
 void ChangeState();
 void FadeOut(SDL_Texture *texture);
-//void SetupBoard(int masterGameBoard[][9]);
 
 void FadeOut(SDL_Texture *texture) {
 
@@ -40,13 +37,13 @@ void FadeOut(SDL_Texture *texture) {
 		SDL_RenderPresent(renderer);
 	}
 }
+
 void SetState(int newState) {
 	std::cout << "\nSetstate";
 	if (nextState != STATE_EXIT) {
 		nextState = newState;
 	}
 }
-
 
 bool Init() {
 	bool success = true;
@@ -79,7 +76,7 @@ bool Init() {
 					success = false;
 				}
 
-				// Initi mixer
+				// Init mixer
 				if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
 					std::cout << "\nSDL_Mixer could not initialize: " << Mix_GetError();
 					success = false;
@@ -89,6 +86,7 @@ bool Init() {
 	}
 	return success;
 }
+
 bool LoadMedia() {
 	bool success = true;
 	soundMusic = Mix_LoadMUS("assets/sound-music.mp3");

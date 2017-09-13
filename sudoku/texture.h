@@ -6,19 +6,10 @@ public:
 	~Texture();
 
 	bool LoadFromFile(std::string path);
-
-#ifdef _SDL_TFF_H
-	bool LoadFromRenderedText(std::string textureText, SDL_Color textColor);
-#endif
-
 	void Free();
-
 	void SetColor(int red, int green, int blue);
-
 	void SetBlendMode(SDL_BlendMode blending);
-
 	void SetAlpha(int aplha);
-
 	void Render(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0,
 		SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
@@ -27,12 +18,10 @@ public:
 
 private:
 	SDL_Texture* texture;
-
 	int width;
 	int height;
 
 };
-
 
 Texture::Texture() {
 	texture = NULL;
@@ -65,27 +54,7 @@ bool Texture::LoadFromFile(std::string path) {
 	this->texture = newTexture;
 	return this->texture != NULL;
 }
-#ifdef _SDL_TTF_H
-bool Texture::LoadFromRenderedText(std::string textureText, SDL_Color textColor) {
-	Free();
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
-	if (textSurface == NULL) {
-		std::cout << "err";
-	}
-	else {
-		texture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		if (texture == NULL) {
-			std::cout << "err";
-		}
-		else {
-			width = textSurface->w;
-			height = textSurface_.h;
-		}
-		SDL_FreeSurface(textSurface);
-	}
-	return texture != NULL;
-}
-#endif
+
 void Texture::Free() {
 	if (texture != NULL) {
 		SDL_DestroyTexture(texture);

@@ -97,7 +97,6 @@ void GameScreen::SetupBoard(int masterGameBoard[][9]) {
 }
 
 GameScreen::GameScreen() {
-
 	debug = true;
 	direction = 1;
 	rotation = 0;
@@ -123,8 +122,6 @@ GameScreen::GameScreen() {
 	if (playAgainTexture == NULL) {
 		std::cout << "\nCould not create play again texture : " << SDL_GetError();
 	}
-	//FadeIn(backgroundTexture);
-	//int masterGameBoard[9][9] = { { 0 } };
 	BoardGenerator boardGenerator;
 	boardGenerator.FillCells();
 	boardGenerator.PrintBoard();
@@ -136,7 +133,6 @@ GameScreen::GameScreen() {
 			gameBoard[i][j].SetPosition((TILE_WIDTH * j) + PADDING_X, (TILE_HEIGHT * i) + PADDING_Y);
 		}
 	}
-
 	// Add padding to the tiles
 	for (int i = 0; i < COL_COUNT; ++i) {
 		for (int j = 0; j < ROW_COUNT; ++j) {
@@ -154,16 +150,13 @@ GameScreen::GameScreen() {
 			}
 		}
 	}
-
 	// Place the GUI tiles
 	for (int i = 0; i < TILE_COUNT; ++i) {
 		guiTiles[i].SetPosition((TILE_WIDTH * i) + PADDING_X - 24, PADDING_Y + (ROW_COUNT * TILE_HEIGHT) + TILE_HEIGHT - TILE_HEIGHT / 4);
 		guiTiles[i].SetValue(i);
 	}
-
 	SetupBoard(boardGenerator.board);
 	DigHoles();
-	//AddPadding();
 }
 
 bool GameScreen::BoardFull() {
@@ -180,29 +173,11 @@ bool GameScreen::BoardFull() {
 	return boardFull;
 }
 void GameScreen::DigHoles() {
-	//int boardPattern[9]{ 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	int boardPattern[9]{ 1 };
 	int firstRows[4]{ 0 };
 	int maxHoles = 0;
 	int digHole = 0;
 	int holeCount = 0;
-	// Each row will have 3 to 8 holes dug in it
-	// The hole placement will be random but the number of holes in each row
-	// will be a pattern. The last four rows are the reverse of the first four. 
-	//  EX : Pattern 4, 2, 4, 3, 4, 3, 4, 2, 4
-	//		Row 1 : 4
-	//		Row 2 : 2
-	//		Row 3 : 4
-	//		Row 4 : 3
-	//		Row 5 : 4
-	//		Row 6 : 3
-	//		Row 7 : 4
-	//		Row 8 : 2
-	//		Row 9 : 4
-	// Generate 4 random numbers between 1 and 5
-	// Add those numbers to a pattern array
-	// Generate the middle number and add it to the pattern array
-	// reverse the first four numbers and add them to the pattern array
 	if (debug == false) {
 		for (int i = 0; i < 5; i++) {
 			boardPattern[i] = rand() % 6 + 1;
@@ -213,16 +188,12 @@ void GameScreen::DigHoles() {
 			boardPattern[j] = boardPattern[8 - j];
 		}
 	}
-	//Count number of holes in board
 	for (int i = 0; i < 9; i++) {
 		holeCount += boardPattern[i];
 	}
 	for (int i = 0; i < 9; i++) {
 		std::cout << boardPattern[i];
 	}
-	std::cout << " : " << holeCount;
-	// Generate a board pattern:
-	// For each row, determine the number of holes
 	for (int i = 0; i < 9; i++) {
 		maxHoles = boardPattern[i];
 		for (int j = 0; j < 9; j++) {
@@ -244,10 +215,6 @@ void GameScreen::DigHoles() {
 			}
 		}
 	}
-	// For each cell pull a random number to determine if the hole is dug
-	// If the hole is dug, clear the cell and decrease the numver of available holes
-	// If there are no available holes, move to the next row
-
 }
 
 void GameScreen::Logic() {
@@ -318,7 +285,6 @@ void GameScreen::Render() {
 	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.b, borderColor.g, SDL_ALPHA_OPAQUE);
 
 	// Draw main Sudoku box outline
-	// gameBoard[i][j].SetPosition((TILE_WIDTH * j) + PADDING_X, (TILE_HEIGHT * i) + PADDING_Y);
 	int firstTileX = gameBoard[0][0].GetX();
 	int firstTileY = gameBoard[0][0].GetY();
 	int lastTileX = gameBoard[8][8].GetX();
@@ -528,7 +494,6 @@ void GameScreen::HandleEvents() {
 									gameBoard[i][j].SetSprite(tempTile.GetSprite());
 									gameBoard[i][j].SetValue(tempTile.GetValue());
 									if (BoardFull()) {
-										//CheckWin();
 										CheckSolved();
 									}
 								}

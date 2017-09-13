@@ -1,14 +1,18 @@
 #pragma once
 #include "texture.h"
+
 class Tile {
 public:
 	Tile();
 	~Tile();
+	SDL_Point GetPosition();
+	TileSprite GetSprite();
+	Texture tileSpriteSheetTexture;
+	Texture GetTexture();
 	void SetPosition(int x, int y);
 	void HandleEvent(SDL_Event* event);
 	void Render();
 	void SetSprite(TileSprite newSprite);
-	SDL_Point GetPosition();
 	bool MouseOver();
 	int GetValue();
 	int GetWinValue();
@@ -19,9 +23,6 @@ public:
 	void LockTile();
 	bool Locked();
 	void UnlockTile();
-	TileSprite GetSprite();
-	Texture tileSpriteSheetTexture;
-	Texture GetTexture();
 
 private:
 	TileSprite currentSprite;
@@ -33,7 +34,6 @@ private:
 Texture Tile::GetTexture() {
 	return tileSpriteSheetTexture;
 }
-
 
 bool Tile::Locked() {
 	return locked;
@@ -58,7 +58,6 @@ Tile::Tile() {
 	locked = true;
 	if (!tileSpriteSheetTexture.LoadFromFile("assets/all-tiles.png")) {
 		std::cout << "\nFailed to load texture ... " << IMG_GetError();
-		//success = false;
 	}
 	else {
 		// Load the sprite images from the tile sprite sheet

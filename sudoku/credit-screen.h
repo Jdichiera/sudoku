@@ -72,7 +72,7 @@ void CreditsScreen::Logic() {
 
 }
 void CreditsScreen::Render() {
-	// 268, 598, 186, 58
+
 	if (mouseOverReturnButton) {
 		returnButton.x = 264;
 		returnButton.y = 595;
@@ -87,8 +87,7 @@ void CreditsScreen::Render() {
 	}
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, creditsTexture, NULL, NULL);
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-	//SDL_RenderFillRect(renderer, &returnButton);
+
 	SDL_RenderCopy(renderer, returnButtonTexture, NULL, &returnButton);
 	SDL_RenderPresent(renderer);
 }

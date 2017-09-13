@@ -1,7 +1,6 @@
 #include "board-generator.h"
 
 bool BoardGenerator::FillCells() {
-	//std::cout << "\nFill cells";
 	std::vector<Coordinates> emptyCellList = GetEmptyCells();
 	while (!emptyCellList.empty()) {
 		int random = rand();
@@ -30,7 +29,6 @@ bool BoardGenerator::FillCells() {
 }
 
 std::vector<Coordinates> BoardGenerator::GetEmptyCells() {
-	//std::cout << "\nGet empty cells";
 	std::vector<Coordinates> emptyCells;
 	Coordinates cell;
 	for (int i = 0; i < 9; i++) {
@@ -46,7 +44,6 @@ std::vector<Coordinates> BoardGenerator::GetEmptyCells() {
 	return emptyCells;
 }
 std::set<int> BoardGenerator::FindPossibleValues(Coordinates emptyCell) {
-	//std::cout << "\nFindPossibleValues";
 	std::set<int> usedNumbers = {};
 	std::set<int> allValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 	std::set<int> possibleValues = {};
@@ -81,7 +78,6 @@ std::set<int> BoardGenerator::FindPossibleValues(Coordinates emptyCell) {
 	return possibleValues;
 }
 bool BoardGenerator::PlaceNumber(int col, int row, int value) {
-	//std::cout << "\nPlaceNumber";
 	bool rowDuplicate = DuplicateInRow(row, value);
 	bool colDuplicate = DuplicateInColumn(col, value);
 	bool blockDuplicate = DuplicateInBlock(col, row, value);
@@ -92,7 +88,6 @@ bool BoardGenerator::PlaceNumber(int col, int row, int value) {
 }
 
 bool BoardGenerator::DuplicateInBlock(int col, int row, int value) {
-	//std::cout << "\nDuplicateInBlock";
 	int colStart = col - col % 3;
 	int rowStart = row - row % 3;
 	for (int row = 0; row < 3; row++)
@@ -104,7 +99,6 @@ bool BoardGenerator::DuplicateInBlock(int col, int row, int value) {
 }
 
 bool BoardGenerator::DuplicateInRow(int row, int value) {
-	//std::cout << "\nDuplicateInRow";
 	for (int col = 0; col < 9; col++) {
 		if (board[row][col] == value) {
 			return true;
@@ -115,7 +109,6 @@ bool BoardGenerator::DuplicateInRow(int row, int value) {
 
 
 bool BoardGenerator::DuplicateInColumn(int col, int value) {
-	//std::cout << "\nDuplicateInColumn";
 	for (int row = 0; row < 9; row++) {
 		if (board[row][col] == value) {
 			return true;
@@ -125,7 +118,6 @@ bool BoardGenerator::DuplicateInColumn(int col, int value) {
 }
 
 void BoardGenerator::PrintBoard() {
-	//std::cout << "\nPrintBoard";
 	std::cout << "\n---------+---------+---------" << std::endl;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
@@ -143,7 +135,6 @@ void BoardGenerator::PrintBoard() {
 }
 
 void BoardGenerator::GenerateBoard() {
-	//std::cout << "\nGenerate Board";
 	FillCells();
 }
 
